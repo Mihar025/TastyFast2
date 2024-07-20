@@ -2,7 +2,6 @@ package com.misha.tastyfast.security;
 
 import com.misha.tastyfast.exception.AccountDissabledException;
 import com.misha.tastyfast.exception.EmailorPasswordAlreadyExistException;
-import com.misha.tastyfast.exception.UserAlreadyExistException;
 import com.misha.tastyfast.model.User;
 import com.misha.tastyfast.model.UserRoles;
 import com.misha.tastyfast.repositories.RoleRepository;
@@ -29,7 +28,7 @@ import java.security.SecureRandom;
 import java.time.LocalDateTime;
 import java.util.Collections;
 import java.util.HashMap;
-import java.util.List;
+
 
 @Service
 @RequiredArgsConstructor
@@ -72,6 +71,39 @@ public class AuthenticationService {
             throw new EmailorPasswordAlreadyExistException("User with email: " + request.getEmail() + " already exist");
         }
     }
+
+
+    public void registerBusiness(RegistrationBusinessAccountRequest request, UserRoles userRoles ) throws MessagingException {
+        if(userRepository.findByEmail(request.getEmail()).isPresent()){
+            throw new EmailorPasswordAlreadyExistException("User with email: " +  request.getEmail() + " already exist");
+        }
+        Role userRole = roleRepository.findByName(userRoles.name())
+                .orElseThrow(() -> new IllegalStateException("ROLE"+ userRoles.name()+  " was not initiated"));
+
+        var user = User.builder()
+                .firstname(request.getFirstname())
+                .lastname(request.getLastname())
+                .email(request.getEmail())
+                .password(passwordEncoder.encode(request.getPassword()))
+                .businessType(request.getBusinessType())
+                .accountLocked(false)
+                .enabled(false)
+                .roles(Collections.singletonList(userRole))
+                .build();
+
+        try {
+            userRepository.save(user);
+            sendValidationEmail(user);
+        } catch (DataIntegrityViolationException e){
+            throw new EmailorPasswordAlreadyExistException("User with email: " + request.getEmail() + " already exist");
+        }
+    }
+
+
+
+
+
+
     private String generateAndSaveActivationToken(User user) {
         // Generate a token
         String generatedToken = generateActivationCode(6);
@@ -194,8 +226,8 @@ public class AuthenticationService {
         register(request, UserRoles.USER);
     }
 
-    public void registerBusinessAccount(RegistrationRequest request) throws MessagingException{
-        register(request, UserRoles.BUSINESS_OWNER);
+    public void registerBusinessAccount(RegistrationBusinessAccountRequest request) throws MessagingException{
+        registerBusiness(request, UserRoles.BUSINESS_OWNER);
     }
 
 
