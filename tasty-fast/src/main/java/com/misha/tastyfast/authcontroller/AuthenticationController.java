@@ -1,5 +1,6 @@
 package com.misha.tastyfast.authcontroller;
 
+import com.misha.tastyfast.requests.registrationRequests.RegistrationBusinessAccountRequest;
 import com.misha.tastyfast.requests.registrationRequests.RegistrationRequest;
 import com.misha.tastyfast.security.AuthenticationRequest;
 import com.misha.tastyfast.security.AuthenticationResponse;
@@ -29,7 +30,7 @@ public class AuthenticationController {
     }
 
     @PostMapping("/register/business")
-    public ResponseEntity<?> registerBusinessAccount(@RequestBody @Valid RegistrationRequest request) throws MessagingException {
+    public ResponseEntity<?> registerBusinessAccount(@RequestBody @Valid RegistrationBusinessAccountRequest request) throws MessagingException {
         authenticationService.registerBusinessAccount(request);
         return ResponseEntity.ok("User register successfully");
     }
