@@ -14,7 +14,7 @@ public record FeedBackRequest(
 
 
         @NotNull(message = "204")
-        Integer bookId
+        Integer businessId
 
 
 ) {
