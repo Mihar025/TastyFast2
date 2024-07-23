@@ -1,8 +1,7 @@
-/* tslint:disable */
-/* eslint-disable */
-import { HttpClient, HttpContext } from '@angular/common/http';
+
+import {HttpClient, HttpContext, HttpErrorResponse, HttpResponse} from '@angular/common/http';
 import { Injectable } from '@angular/core';
-import { Observable } from 'rxjs';
+import {catchError, Observable, throwError} from 'rxjs';
 import { map } from 'rxjs/operators';
 
 import { BaseService } from '../base-service';
@@ -38,23 +37,63 @@ export class AuthenticationService extends BaseService {
    *
    * This method sends `application/json` and handles request body of type `application/json`.
    */
-  registerUser$Response(params: RegisterUser$Params, context?: HttpContext): Observable<StrictHttpResponse<{
-}>> {
-    return registerUser(this.http, this.rootUrl, params, context);
+
+
+
+  registerUser$Response(params: RegisterUser$Params, context?: HttpContext): Observable<StrictHttpResponse<any>> {
+    return this.http.post(`${this.rootUrl}${AuthenticationService.RegisterUserPath}`, params.body, {
+      responseType: 'text',
+      observe: 'response',
+      context
+    }).pipe(
+      map((response: HttpResponse<string>) => {
+        console.log('Raw server response:', response.body);
+        let parsedBody: any;
+        try {
+          parsedBody = JSON.parse(response.body || '');
+        } catch (e) {
+          parsedBody = { message: response.body };
+        }
+
+        return {
+          body: parsedBody,
+          status: response.status,
+          statusText: response.statusText,
+          headers: response.headers,
+          url: response.url || '',
+          type: response.type,
+          clone: response.clone,
+          ok: response.ok
+        };
+      }),
+      catchError(this.handleError)
+    );
   }
 
+  private handleError(error: HttpErrorResponse) {
+    console.error('An error occurred:', error);
+    let errorMessage = 'An unexpected error occurred';
+    if (error.error instanceof ErrorEvent) {
+      // Клиентская ошибка
+      errorMessage = `Error: ${error.error.message}`;
+    } else if (typeof error.error === 'string') {
+      // Сервер вернул строку ошибки
+      errorMessage = error.error;
+    } else if (error.status) {
+      // Сервер вернул код ошибки
+      errorMessage = `Error Code: ${error.status}\nMessage: ${error.message}`;
+    }
+    return throwError(() => errorMessage);
+  }
   /**
    * This method provides access only to the response body.
    * To access the full response (for headers, for example), `registerUser$Response()` instead.
    *
    * This method sends `application/json` and handles request body of type `application/json`.
    */
-  registerUser(params: RegisterUser$Params, context?: HttpContext): Observable<{
-}> {
+  registerUser(params: RegisterUser$Params, context?: HttpContext): Observable<any> {
     return this.registerUser$Response(params, context).pipe(
-      map((r: StrictHttpResponse<{
-}>): {
-} => r.body)
+      map((r: StrictHttpResponse<any>): any => r.body)
     );
   }
 
@@ -67,10 +106,37 @@ export class AuthenticationService extends BaseService {
    *
    * This method sends `application/json` and handles request body of type `application/json`.
    */
-  registerBusinessAccount$Response(params: RegisterBusinessAccount$Params, context?: HttpContext): Observable<StrictHttpResponse<{
-}>> {
-    return registerBusinessAccount(this.http, this.rootUrl, params, context);
+
+  registerBusinessAccount$Response(params: RegisterBusinessAccount$Params, context?: HttpContext): Observable<StrictHttpResponse<any>> {
+    return this.http.post(`${this.rootUrl}${AuthenticationService.RegisterBusinessAccountPath}`, params.body, {
+      responseType: 'text',
+      observe: 'response',
+      context
+    }).pipe(
+      map((response: HttpResponse<string>) => {
+        console.log('Raw server response for business account:', response.body);
+        let parsedBody: any;
+        try {
+          parsedBody = JSON.parse(response.body || '');
+        } catch (e) {
+          parsedBody = { message: response.body };
+        }
+
+        return {
+          body: parsedBody,
+          status: response.status,
+          statusText: response.statusText,
+          headers: response.headers,
+          url: response.url || '',
+          type: response.type,
+          clone: response.clone,
+          ok: response.ok
+        };
+      }),
+      catchError(this.handleError)
+    );
   }
+
 
   /**
    * This method provides access only to the response body.
@@ -78,14 +144,12 @@ export class AuthenticationService extends BaseService {
    *
    * This method sends `application/json` and handles request body of type `application/json`.
    */
-  registerBusinessAccount(params: RegisterBusinessAccount$Params, context?: HttpContext): Observable<{
-}> {
+  registerBusinessAccount(params: RegisterBusinessAccount$Params, context?: HttpContext): Observable<any> {
     return this.registerBusinessAccount$Response(params, context).pipe(
-      map((r: StrictHttpResponse<{
-}>): {
-} => r.body)
+      map((r: StrictHttpResponse<any>) => r.body)
     );
   }
+
 
   /** Path part for operation `registerAdmin()` */
   static readonly RegisterAdminPath = '/auth/register/admin';
@@ -97,7 +161,7 @@ export class AuthenticationService extends BaseService {
    * This method sends `application/json` and handles request body of type `application/json`.
    */
   registerAdmin$Response(params: RegisterAdmin$Params, context?: HttpContext): Observable<StrictHttpResponse<{
-}>> {
+  }>> {
     return registerAdmin(this.http, this.rootUrl, params, context);
   }
 
@@ -108,11 +172,11 @@ export class AuthenticationService extends BaseService {
    * This method sends `application/json` and handles request body of type `application/json`.
    */
   registerAdmin(params: RegisterAdmin$Params, context?: HttpContext): Observable<{
-}> {
+  }> {
     return this.registerAdmin$Response(params, context).pipe(
       map((r: StrictHttpResponse<{
-}>): {
-} => r.body)
+      }>): {
+      } => r.body)
     );
   }
 
