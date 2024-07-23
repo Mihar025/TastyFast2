@@ -125,8 +125,9 @@ export class AuthenticationService extends BaseService {
    *
    * This method doesn't expect any request body.
    */
-  logout$Response(params: Logout$Params, context?: HttpContext): Observable<StrictHttpResponse<string>> {
-    return logout(this.http, this.rootUrl, params, context);
+  logout$Response(params: {} , context?: HttpContext | undefined): Observable<StrictHttpResponse<string>> {
+
+    return logout(this.http, this.rootUrl,<Logout$Params>params,context);
   }
 
   /**
@@ -135,7 +136,7 @@ export class AuthenticationService extends BaseService {
    *
    * This method doesn't expect any request body.
    */
-  logout(params: Logout$Params, context?: HttpContext): Observable<string> {
+  logout(params: {}, context?: HttpContext): Observable<string> {
     return this.logout$Response(params, context).pipe(
       map((r: StrictHttpResponse<string>): string => r.body)
     );

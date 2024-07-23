@@ -17,12 +17,18 @@ const routes: Routes = [
     component: RegisterComponent
   },
   {
+    path: 'activate-account',
+    component: ActivateAccountComponent
+  },
+  {
     path: 'register-business',
     component: RegisterBusinessComponent
   },
+
   {
-    path: 'activate-account',
-    component: ActivateAccountComponent
+    path: 'tasty-fast',
+    loadChildren: () => import('./modules/MainPage/main-page.module')
+      .then(m => m.MainPageModule)
   },
 ];
 
