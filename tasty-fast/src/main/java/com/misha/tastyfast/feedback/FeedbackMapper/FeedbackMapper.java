@@ -17,7 +17,7 @@ public class FeedbackMapper {
                 .note(request.note())
                 .comment(request.comment())
                 .product(Product.builder()
-                        .id(request.bookId())
+                        .id(request.businessId())
                         .inStock(false)
                         .build()
                 )

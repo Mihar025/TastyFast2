@@ -2,12 +2,11 @@ package com.misha.tastyfast.config;
 
 
 import com.github.benmanes.caffeine.cache.Caffeine;
-import com.misha.tastyfast.model.User;
-import com.misha.tastyfast.requests.userRequests.UserResponse;
-import jakarta.persistence.EntityNotFoundException;
+
 import lombok.RequiredArgsConstructor;
+
 import org.springframework.cache.CacheManager;
-import org.springframework.cache.annotation.CachePut;
+
 import org.springframework.cache.caffeine.CaffeineCache;
 import org.springframework.cache.support.SimpleCacheManager;
 import org.springframework.context.annotation.Bean;
@@ -17,16 +16,21 @@ import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.AuthenticationProvider;
 import org.springframework.security.authentication.dao.DaoAuthenticationProvider;
 import org.springframework.security.config.annotation.authentication.configuration.AuthenticationConfiguration;
-import org.springframework.security.core.Authentication;
+
 import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
-import org.springframework.transaction.annotation.Transactional;
 
-import java.nio.file.AccessDeniedException;
+import org.springframework.web.cors.CorsConfiguration;
+import org.springframework.web.cors.UrlBasedCorsConfigurationSource;
+import org.springframework.web.filter.CorsFilter;
+
 import java.util.Arrays;
+import java.util.Collections;
 import java.util.List;
 import java.util.concurrent.TimeUnit;
+
+import static org.springframework.http.HttpHeaders.*;
 
 @Configuration
 @RequiredArgsConstructor
@@ -97,6 +101,29 @@ public class BeansConfig {
                 .maximumSize(maxSize)
                 .expireAfterWrite(expireAfter, TimeUnit.MINUTES)
                 .build());
+    }
+
+    @Bean
+    public CorsFilter corsFilter(){
+        final UrlBasedCorsConfigurationSource source = new UrlBasedCorsConfigurationSource();
+        final CorsConfiguration configuration = new CorsConfiguration();
+        configuration.setAllowCredentials(true);
+        configuration.setAllowedOrigins(Collections.singletonList("http://localhost:4200"));
+        configuration.setAllowedHeaders(Arrays.asList(
+                ORIGIN,
+                CONTENT_TYPE,
+                ACCEPT,
+                AUTHORIZATION
+        ));
+        configuration.setAllowedMethods(Arrays.asList(
+                "GET",
+                "POST",
+                "DELETE",
+                "PUT",
+                "PATCH"
+        ));
+        source.registerCorsConfiguration("/**", configuration);
+        return new CorsFilter(source);
     }
 
 
