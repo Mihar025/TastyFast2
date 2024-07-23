@@ -24,10 +24,10 @@ import {HttpTokenInterceptor} from "./services/interceptor/http-token.intercepto
     RegisterComponent,
     ActivateAccountComponent,
     RegisterBusinessComponent,
-    MainComponent,
-    MenuComponent,
-    RestaurantListComponent,
-    StoreListComponent
+     MainComponent,
+     MenuComponent,
+      RestaurantListComponent,
+      StoreListComponent
   ],
   imports: [
     BrowserModule,
