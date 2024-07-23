@@ -51,6 +51,8 @@ public class User implements UserDetails, Principal {
     private boolean enabled;
     private String street;
 
+    private String businessType;
+
     @ManyToMany(fetch = FetchType.EAGER)
     private List<Role> roles;
 
