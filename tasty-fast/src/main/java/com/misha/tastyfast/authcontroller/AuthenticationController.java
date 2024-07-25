@@ -29,6 +29,7 @@ public class AuthenticationController {
             return ResponseEntity.ok("User register successfully");
     }
 
+
     @PostMapping("/register/business")
     public ResponseEntity<?> registerBusinessAccount(@RequestBody @Valid RegistrationBusinessAccountRequest request) throws MessagingException {
         authenticationService.registerBusinessAccount(request);
@@ -41,6 +42,8 @@ public class AuthenticationController {
         authenticationService.registerAdmin(request);
         return ResponseEntity.ok("User register successfully");
     }
+
+
 
     @PostMapping("/authenticate")
     public ResponseEntity<AuthenticationResponse> authenticate(
