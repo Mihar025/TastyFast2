@@ -16,18 +16,24 @@ import {MenuComponent} from "./modules/MainPage/components/menu/menu.component";
 import {RestaurantListComponent} from "./modules/MainPage/pages/restaurant-list/restaurant-list.component";
 import {StoreListComponent} from "./modules/MainPage/pages/store-list/store-list.component";
 import {HttpTokenInterceptor} from "./services/interceptor/http-token.interceptor";
+import {RestaurantDetailsComponent} from "./modules/MainPage/pages/restaurant-details/restaurant-details.component";
+import {StoresDetailsComponent} from "./modules/MainPage/pages/stores-details/stores-details.component";
 
 @NgModule({
   declarations: [
     AppComponent,
-    LoginComponent,
-    RegisterComponent,
-    ActivateAccountComponent,
-    RegisterBusinessComponent,
-     MainComponent,
-     MenuComponent,
-      RestaurantListComponent,
-      StoreListComponent
+     LoginComponent,
+      RegisterComponent,
+       ActivateAccountComponent,
+        RegisterBusinessComponent,
+         MainComponent,
+          MenuComponent,
+           RestaurantListComponent,
+            StoreListComponent,
+             RestaurantDetailsComponent,
+              StoresDetailsComponent,
+
+
   ],
   imports: [
     BrowserModule,
