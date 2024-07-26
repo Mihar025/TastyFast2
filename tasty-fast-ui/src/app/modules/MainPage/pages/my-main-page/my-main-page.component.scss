@@ -1,0 +1,26 @@
+.restaurant-list, .store-list {
+  display: flex;
+  flex-direction: column;
+}
+
+.card {
+  transition: transform 0.3s ease-in-out, box-shadow 0.3s ease-in-out;
+  margin-bottom: 15px;
+
+  &:hover {
+    transform: translateY(-5px);
+    box-shadow: 0 4px 8px rgba(0,0,0,0.1);
+  }
+}
+
+.special-offer {
+  background-color: #fffacd; // Light yellow background
+  border: 2px solid #ffd700; // Gold border
+  cursor: pointer;
+}
+
+@media (max-width: 767px) {
+  .col-md-6 + .col-md-6 {
+    margin-top: 2rem;
+  }
+}
