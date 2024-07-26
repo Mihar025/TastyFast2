@@ -1,0 +1,78 @@
+import {Component, OnInit} from '@angular/core';
+import {RestaurantResponse} from "../../../../services/models/restaurant-response";
+import {StoreResponse} from "../../../../services/models/store-response";
+import {RestaurantControllerService} from "../../../../services/services/restaurant-controller.service";
+import {StoreControllerService} from "../../../../services/services/store-controller.service";
+import {Router} from "@angular/router";
+
+@Component({
+  selector: 'app-my-main-page',
+  templateUrl: './my-main-page.component.html',
+  styleUrl: './my-main-page.component.scss'
+})
+export class MyMainPageComponent implements OnInit{
+restaurants: RestaurantResponse [] = [];
+stores: StoreResponse [] = [];
+error: string[] = [];
+specialOffer: RestaurantResponse | null = null;
+
+    constructor(
+      private restaurantService: RestaurantControllerService,
+      private storeService: StoreControllerService,
+      private route: Router
+    ) {}
+
+  ngOnInit() {
+    this.loadRestaurants();
+    this.loadStores();
+    this.loadSpecialOffer();
+    }
+
+
+  loadRestaurants() {
+    this.restaurantService.getAllRestaurants({ page: 0, size: 5 }).subscribe({
+      next: (response) => {
+        this.restaurants = response.content || [];
+      },
+      error: (error) => console.error('Error loading restaurants', error)
+    });
+  }
+  loadSpecialOffer() {
+    // В реальном приложении вы бы получали специальное предложение с сервера
+    // Здесь мы просто возьмем первый ресторан из списка для демонстрации
+    this.restaurantService.getAllRestaurants({ page: 0, size: 1 }).subscribe({
+      next: (response) => {
+        if (response.content && response.content.length > 0) {
+          this.specialOffer = response.content[0];
+        }
+      },
+      error: (error) => console.error('Error loading special offer', error)
+    });
+  }
+
+
+
+
+   loadStores() {
+      this.storeService.getAllStores({page: 0, size: 5})
+        .subscribe({
+          next: (response) => {
+            this.stores = response.content || [];
+          },
+          error: (error) => console.error('Error loading stores', error)
+        });
+   }
+
+  goToRestaurantDetails(restaurant: RestaurantResponse) {
+    if (restaurant.restaurantId) {
+      this.route.navigate(['/tasty-fast/restaurants/details', restaurant.restaurantId]);
+    }
+  }
+
+  goToStoreDetails(store: StoreResponse) {
+    if (store.id) {
+      this.route.navigate(['/tasty-fast/stores/details', store.id]);
+    }
+  }
+
+}
