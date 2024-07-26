@@ -1,0 +1,48 @@
+<div class="container" *ngIf="restaurant">
+  <h2>{{ restaurant.restaurantName }}</h2>
+  <p>{{ restaurant.description}}</p>
+
+  <div *ngIf="restaurant.dishesResponses && restaurant.dishesResponses.length > 0">
+    <h4>Products</h4>
+    <div class="row">
+      <div class="col-md-4 mb-4" *ngFor="let dishes of restaurant.dishesResponses">
+        <div class="card">
+          <!--   <img [src]="'assets/images/' + product.image" class="card-img-top" alt="{{ product.productName }}"> -->
+          <div class="card-body">
+            <h5 class="card-title">{{ dishes.dishesName }}</h5>
+            <p class="card-text">{{ dishes.dishesDescription }}</p>
+            <p class="card-text"><strong>Price: {{ dishes.price | currency }}</strong></p>
+            <button class="btn btn-primary">Order</button>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div *ngIf="restaurant.drinksResponses && restaurant.drinksResponses.length > 0">
+    <h4>Drinks</h4>
+    <div class="row">
+      <div class="col-md-4 mb-4" *ngFor="let drink of restaurant.drinksResponses">
+        <div class="card">
+          <!--       <img [src]="'assets/images/' + drink.image" class="card-img-top" alt="{{ drink.drinkName }}"> -->
+          <div class="card-body">
+            <h5 class="card-title">{{ drink.drinkName }}</h5>
+            <p class="card-text">{{ drink.drinkDescription }}</p>
+            <p class="card-text"><strong>Price: {{ drink.price | currency }}</strong></p>
+            <button class="btn btn-primary">Order</button>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div *ngIf="(!restaurant.dishesResponses || restaurant.dishesResponses.length === 0) && (!restaurant.drinksResponses || restaurant.drinksResponses.length === 0)">
+    <p>No menu items available.</p>
+  </div>
+</div>
+
+<div class="container" *ngIf="error">
+  <div class="alert alert-danger" role="alert">
+    {{ error }}
+  </div>
+</div>
