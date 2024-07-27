@@ -100,12 +100,7 @@ public class AuthenticationService {
     }
 
 
-
-
-
-
     private String generateAndSaveActivationToken(User user) {
-        // Generate a token
         String generatedToken = generateActivationCode(6);
         var token = Token.builder()
                 .token(generatedToken)
@@ -157,7 +152,7 @@ public class AuthenticationService {
             var claims = new HashMap<String, Object>();
             var user = ((User) auth.getPrincipal());
             claims.put("fullName", user.getFullName());
-
+            claims.put("userId", user.getId());
             var jwtToken = jwtService.generateToken(claims, user);
             saveToken(user, jwtToken);
             return AuthenticationResponse.builder()

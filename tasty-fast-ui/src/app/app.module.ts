@@ -18,6 +18,8 @@ import {StoreListComponent} from "./modules/MainPage/pages/store-list/store-list
 import {HttpTokenInterceptor} from "./services/interceptor/http-token.interceptor";
 import {RestaurantDetailsComponent} from "./modules/MainPage/pages/restaurant-details/restaurant-details.component";
 import {StoresDetailsComponent} from "./modules/MainPage/pages/stores-details/stores-details.component";
+import {JWT_OPTIONS, JwtHelperService} from "@auth0/angular-jwt";
+import {WatchProfileComponent} from "./modules/MainPage/pages/watch-profile/watch-profile.component";
 
 @NgModule({
   declarations: [
@@ -32,6 +34,7 @@ import {StoresDetailsComponent} from "./modules/MainPage/pages/stores-details/st
             StoreListComponent,
              RestaurantDetailsComponent,
               StoresDetailsComponent,
+
 
 
   ],
@@ -50,7 +53,9 @@ import {StoresDetailsComponent} from "./modules/MainPage/pages/stores-details/st
       provide: HTTP_INTERCEPTORS,
       useClass: HttpTokenInterceptor,
       multi: true
-    }
+    },
+    { provide: JWT_OPTIONS, useValue: JWT_OPTIONS },
+    JwtHelperService
   ],
   bootstrap: [AppComponent]
 })
