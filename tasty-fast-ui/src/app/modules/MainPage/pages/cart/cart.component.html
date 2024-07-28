@@ -1,0 +1,29 @@
+<div class="container" *ngIf="cart; else loadingCart">
+  <h2>Your Cart</h2>
+  <div *ngIf="cart.items && cart.items.length > 0; else emptyCart">
+    <ul class="list-group">
+      <li *ngFor="let item of cart.items" class="list-group-item">
+        <div class="d-flex justify-content-between align-items-center">
+          <div>
+            <h5>{{ item.itemName }}</h5>
+            <p>Price: {{ item.price | currency }}</p>
+            <p>Quantity: {{ item.quantity }}</p>
+          </div>
+          <button class="btn btn-danger" (click)="removeItem(item.id)" [disabled]="!item.id">Remove</button>
+        </div>
+      </li>
+    </ul>
+    <div class="mt-3">
+      <h4>Total: {{ cart.totalAmount | currency }}</h4>
+      <button class="btn btn-primary" (click)="placeOrder()">Place Order</button>
+    </div>
+  </div>
+</div>
+
+<ng-template #emptyCart>
+  <p>Your cart is empty.</p>
+</ng-template>
+
+<ng-template #loadingCart>
+  <p>Loading cart...</p>
+</ng-template>
