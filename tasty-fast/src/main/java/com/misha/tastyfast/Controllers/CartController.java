@@ -6,13 +6,15 @@ import com.misha.tastyfast.requests.cartRequests.CartRequest;
 import com.misha.tastyfast.requests.cartRequests.CartResponse;
 import com.misha.tastyfast.services.CartService;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.Authentication;
 import org.springframework.web.bind.annotation.*;
 
 @RestController
-@RequestMapping(name = "cart" )
+@RequestMapping("cart")
 @RequiredArgsConstructor
+@Slf4j
 public class CartController {
     private final CartService cartService;
 
@@ -29,11 +31,19 @@ public class CartController {
     }
 
     @PostMapping("/items")
-    public ResponseEntity<CartResponse> addItemToCart(@RequestBody CartItemRequest itemRequest, Authentication authentication) {
-        CartResponse updatedCart = cartService.addItemToCart(itemRequest, authentication);
-        return ResponseEntity.ok(updatedCart);
+    public ResponseEntity<?> addItemToCart(@RequestBody CartItemRequest itemRequest, Authentication authentication) {
+        log.debug("Received request to add item to cart: {}", itemRequest);
+        try {
+            CartResponse updatedCart = cartService.addItemToCart(itemRequest, authentication);
+            return ResponseEntity.ok(updatedCart);
+        } catch (IllegalArgumentException e) {
+            log.error("Invalid request to add item to cart", e);
+            return ResponseEntity.badRequest().body(e.getMessage());
+        } catch (Exception e) {
+            log.error("Error adding item to cart", e);
+            return ResponseEntity.internalServerError().body("An error occurred while adding item to cart");
+        }
     }
-
     @DeleteMapping("/items/{itemId}")
     public ResponseEntity<CartResponse> removeItemFromCart(@PathVariable Integer itemId, Authentication authentication) {
         CartResponse updatedCart = cartService.removeItemFromCart(itemId, authentication);
