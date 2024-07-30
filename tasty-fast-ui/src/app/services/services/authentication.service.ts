@@ -49,13 +49,8 @@ export class AuthenticationService extends BaseService {
    *
    * This method sends `application/json` and handles request body of type `application/json`.
    */
-  registerUser(params: RegisterUser$Params, context?: HttpContext): Observable<{
-}> {
-    return this.registerUser$Response(params, context).pipe(
-      map((r: StrictHttpResponse<{
-}>): {
-} => r.body)
-    );
+  registerUser(params: RegisterUser$Params): Observable<string> {
+    return this.http.post(this.rootUrl + '/auth/register', params.body, { responseType: 'text' });
   }
 
   /** Path part for operation `registerBusinessAccount()` */
@@ -78,13 +73,8 @@ export class AuthenticationService extends BaseService {
    *
    * This method sends `application/json` and handles request body of type `application/json`.
    */
-  registerBusinessAccount(params: RegisterBusinessAccount$Params, context?: HttpContext): Observable<{
-}> {
-    return this.registerBusinessAccount$Response(params, context).pipe(
-      map((r: StrictHttpResponse<{
-}>): {
-} => r.body)
-    );
+  registerBusinessAccount(params: RegisterBusinessAccount$Params): Observable<string> {
+    return this.http.post(this.rootUrl + '/auth/register/business', params.body, { responseType: 'text' });
   }
 
   /** Path part for operation `registerAdmin()` */
