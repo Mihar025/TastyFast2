@@ -49,4 +49,10 @@ public class Order extends BaseEntity {
     public String getOrderSource() {
         return restaurant != null ? "RESTAURANT" : "STORE";
     }
+
+
+    public void addOrderItem(OrderItem item) {
+        orderItems.add(item);
+        item.setOrder(this);
+    }
 }
