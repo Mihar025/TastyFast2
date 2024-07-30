@@ -1,4 +1,8 @@
 <div class="container" *ngIf="cart; else loadingCart">
+  <div *ngIf="orderPlaced" class="alert alert-success alert-dismissible fade show" role="alert">
+    Order has been successfully created!
+    <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close" (click)="orderPlaced = false"></button>
+  </div>
   <h2>Your Cart</h2>
   <div *ngIf="cart.items && cart.items.length > 0; else emptyCart">
     <ul class="list-group">

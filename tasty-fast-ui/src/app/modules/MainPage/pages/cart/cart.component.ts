@@ -10,6 +10,7 @@ import { CartResponse } from '../../../../services/models/cart-response';
 })
 export class CartComponent implements OnInit {
   cart: CartResponse | null = null;
+  orderPlaced: boolean = false;
 
   constructor(
     private cartService: CartControllerService,
@@ -50,7 +51,9 @@ export class CartComponent implements OnInit {
     this.orderService.createOrderFromCart().subscribe({
       next: (orderResponse) => {
         console.log('Order placed successfully:', orderResponse);
+        this.orderPlaced = true;
         this.loadCart(); // Перезагрузите корзину после размещения заказа
+        setTimeout(() => this.orderPlaced = false, 5000); // Скрыть сообщение через 5 секунд
       },
       error: (error) => {
         console.error('Error placing order:', error);
