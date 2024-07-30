@@ -64,12 +64,9 @@ public class AuthenticationService {
                 .roles(Collections.singletonList(userRole))
                 .build();
 
-        try {
             userRepository.save(user);
             sendValidationEmail(user);
-        } catch (DataIntegrityViolationException e){
-            throw new EmailorPasswordAlreadyExistException("User with email: " + request.getEmail() + " already exist");
-        }
+
     }
 
 
@@ -91,12 +88,9 @@ public class AuthenticationService {
                 .roles(Collections.singletonList(userRole))
                 .build();
 
-        try {
             userRepository.save(user);
             sendValidationEmail(user);
-        } catch (DataIntegrityViolationException e){
-            throw new EmailorPasswordAlreadyExistException("User with email: " + request.getEmail() + " already exist");
-        }
+
     }
 
 
