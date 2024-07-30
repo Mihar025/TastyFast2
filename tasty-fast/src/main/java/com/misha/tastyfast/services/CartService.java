@@ -95,7 +95,7 @@ public class CartService {
                 });
     }
 
-
+    @Transactional
     public void clearCart(User user) {
         Cart cart = getOrCreateCart(user);
         cart.getCartItems().clear();
@@ -106,9 +106,9 @@ public class CartService {
     public OrderItem createOrderItemFromCartItem(CartItemResponse cartItemResponse, Order order) {
         OrderItem orderItem = new OrderItem();
         orderItem.setOrder(order);
-        orderItem.setItemName(cartItemResponse.getItemType());
+        orderItem.setItemName(cartItemResponse.getItemName());
         orderItem.setItemType(cartItemResponse.getItemType());
-        orderItem.setId(cartItemResponse.getId());
+        orderItem.setId(cartItemResponse.getItemId());
         orderItem.setQuantity(cartItemResponse.getQuantity());
         orderItem.setPrice(cartItemResponse.getPrice());
         return orderItem;

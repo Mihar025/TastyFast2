@@ -1,0 +1,272 @@
+/* tslint:disable */
+/* eslint-disable */
+import { HttpClient, HttpContext } from '@angular/common/http';
+import { Injectable } from '@angular/core';
+import { Observable } from 'rxjs';
+import { map } from 'rxjs/operators';
+
+import { BaseService } from '../base-service';
+import { ApiConfiguration } from '../api-configuration';
+import { StrictHttpResponse } from '../strict-http-response';
+
+import { changeDateOfBirth } from '../fn/user-controller/change-date-of-birth';
+import { ChangeDateOfBirth$Params } from '../fn/user-controller/change-date-of-birth';
+import { changeEmail } from '../fn/user-controller/change-email';
+import { ChangeEmail$Params } from '../fn/user-controller/change-email';
+import { changeFirstName } from '../fn/user-controller/change-first-name';
+import { ChangeFirstName$Params } from '../fn/user-controller/change-first-name';
+import { changeLastName } from '../fn/user-controller/change-last-name';
+import { ChangeLastName$Params } from '../fn/user-controller/change-last-name';
+import { changePassword } from '../fn/user-controller/change-password';
+import { ChangePassword$Params } from '../fn/user-controller/change-password';
+import { changeStreet } from '../fn/user-controller/change-street';
+import { ChangeStreet$Params } from '../fn/user-controller/change-street';
+import { DateOfBirthRequest } from '../models/date-of-birth-request';
+import { deleteAccount } from '../fn/user-controller/delete-account';
+import { DeleteAccount$Params } from '../fn/user-controller/delete-account';
+import { EmailRequest } from '../models/email-request';
+import { FirstNameRequest } from '../models/first-name-request';
+import { getCurrentUserId } from '../fn/user-controller/get-current-user-id';
+import { GetCurrentUserId$Params } from '../fn/user-controller/get-current-user-id';
+import { LastNameRequest } from '../models/last-name-request';
+import { PasswordChangeRequest } from '../models/password-change-request';
+import { showAllUserInformation } from '../fn/user-controller/show-all-user-information';
+import { ShowAllUserInformation$Params } from '../fn/user-controller/show-all-user-information';
+import { StreetRequest } from '../models/street-request';
+import { UserIdResponse } from '../models/user-id-response';
+import { UserResponse } from '../models/user-response';
+
+@Injectable({ providedIn: 'root' })
+export class UserControllerService extends BaseService {
+  constructor(config: ApiConfiguration, http: HttpClient) {
+    super(config, http);
+  }
+
+  /** Path part for operation `changeStreet()` */
+  static readonly ChangeStreetPath = '/user-settings/{userId}/street';
+
+  /**
+   * This method provides access to the full `HttpResponse`, allowing access to response headers.
+   * To access only the response body, use `changeStreet()` instead.
+   *
+   * This method sends `application/json` and handles request body of type `application/json`.
+   */
+  changeStreet$Response(params: ChangeStreet$Params, context?: HttpContext): Observable<StrictHttpResponse<StreetRequest>> {
+    return changeStreet(this.http, this.rootUrl, params, context);
+  }
+
+  /**
+   * This method provides access only to the response body.
+   * To access the full response (for headers, for example), `changeStreet$Response()` instead.
+   *
+   * This method sends `application/json` and handles request body of type `application/json`.
+   */
+  changeStreet(params: ChangeStreet$Params, context?: HttpContext): Observable<StreetRequest> {
+    return this.changeStreet$Response(params, context).pipe(
+      map((r: StrictHttpResponse<StreetRequest>): StreetRequest => r.body)
+    );
+  }
+
+  /** Path part for operation `changePassword()` */
+  static readonly ChangePasswordPath = '/user-settings/{userId}/password';
+
+  /**
+   * This method provides access to the full `HttpResponse`, allowing access to response headers.
+   * To access only the response body, use `changePassword()` instead.
+   *
+   * This method sends `application/json` and handles request body of type `application/json`.
+   */
+  changePassword$Response(params: ChangePassword$Params, context?: HttpContext): Observable<StrictHttpResponse<PasswordChangeRequest>> {
+    return changePassword(this.http, this.rootUrl, params, context);
+  }
+
+  /**
+   * This method provides access only to the response body.
+   * To access the full response (for headers, for example), `changePassword$Response()` instead.
+   *
+   * This method sends `application/json` and handles request body of type `application/json`.
+   */
+  changePassword(params: ChangePassword$Params, context?: HttpContext): Observable<PasswordChangeRequest> {
+    return this.changePassword$Response(params, context).pipe(
+      map((r: StrictHttpResponse<PasswordChangeRequest>): PasswordChangeRequest => r.body)
+    );
+  }
+
+  /** Path part for operation `changeLastName()` */
+  static readonly ChangeLastNamePath = '/user-settings/{userId}/lastName';
+
+  /**
+   * This method provides access to the full `HttpResponse`, allowing access to response headers.
+   * To access only the response body, use `changeLastName()` instead.
+   *
+   * This method sends `application/json` and handles request body of type `application/json`.
+   */
+  changeLastName$Response(params: ChangeLastName$Params, context?: HttpContext): Observable<StrictHttpResponse<LastNameRequest>> {
+    return changeLastName(this.http, this.rootUrl, params, context);
+  }
+
+  /**
+   * This method provides access only to the response body.
+   * To access the full response (for headers, for example), `changeLastName$Response()` instead.
+   *
+   * This method sends `application/json` and handles request body of type `application/json`.
+   */
+  changeLastName(params: ChangeLastName$Params, context?: HttpContext): Observable<LastNameRequest> {
+    return this.changeLastName$Response(params, context).pipe(
+      map((r: StrictHttpResponse<LastNameRequest>): LastNameRequest => r.body)
+    );
+  }
+
+  /** Path part for operation `changeFirstName()` */
+  static readonly ChangeFirstNamePath = '/user-settings/{userId}/firstName';
+
+  /**
+   * This method provides access to the full `HttpResponse`, allowing access to response headers.
+   * To access only the response body, use `changeFirstName()` instead.
+   *
+   * This method sends `application/json` and handles request body of type `application/json`.
+   */
+  changeFirstName$Response(params: ChangeFirstName$Params, context?: HttpContext): Observable<StrictHttpResponse<FirstNameRequest>> {
+    return changeFirstName(this.http, this.rootUrl, params, context);
+  }
+
+  /**
+   * This method provides access only to the response body.
+   * To access the full response (for headers, for example), `changeFirstName$Response()` instead.
+   *
+   * This method sends `application/json` and handles request body of type `application/json`.
+   */
+  changeFirstName(params: ChangeFirstName$Params, context?: HttpContext): Observable<FirstNameRequest> {
+    return this.changeFirstName$Response(params, context).pipe(
+      map((r: StrictHttpResponse<FirstNameRequest>): FirstNameRequest => r.body)
+    );
+  }
+
+  /** Path part for operation `changeEmail()` */
+  static readonly ChangeEmailPath = '/user-settings/{userId}/email';
+
+  /**
+   * This method provides access to the full `HttpResponse`, allowing access to response headers.
+   * To access only the response body, use `changeEmail()` instead.
+   *
+   * This method sends `application/json` and handles request body of type `application/json`.
+   */
+  changeEmail$Response(params: ChangeEmail$Params, context?: HttpContext): Observable<StrictHttpResponse<EmailRequest>> {
+    return changeEmail(this.http, this.rootUrl, params, context);
+  }
+
+  /**
+   * This method provides access only to the response body.
+   * To access the full response (for headers, for example), `changeEmail$Response()` instead.
+   *
+   * This method sends `application/json` and handles request body of type `application/json`.
+   */
+  changeEmail(params: ChangeEmail$Params, context?: HttpContext): Observable<EmailRequest> {
+    return this.changeEmail$Response(params, context).pipe(
+      map((r: StrictHttpResponse<EmailRequest>): EmailRequest => r.body)
+    );
+  }
+
+  /** Path part for operation `changeDateOfBirth()` */
+  static readonly ChangeDateOfBirthPath = '/user-settings/{userId}/dateOfBirth';
+
+  /**
+   * This method provides access to the full `HttpResponse`, allowing access to response headers.
+   * To access only the response body, use `changeDateOfBirth()` instead.
+   *
+   * This method sends `application/json` and handles request body of type `application/json`.
+   */
+  changeDateOfBirth$Response(params: ChangeDateOfBirth$Params, context?: HttpContext): Observable<StrictHttpResponse<DateOfBirthRequest>> {
+    return changeDateOfBirth(this.http, this.rootUrl, params, context);
+  }
+
+  /**
+   * This method provides access only to the response body.
+   * To access the full response (for headers, for example), `changeDateOfBirth$Response()` instead.
+   *
+   * This method sends `application/json` and handles request body of type `application/json`.
+   */
+  changeDateOfBirth(params: ChangeDateOfBirth$Params, context?: HttpContext): Observable<DateOfBirthRequest> {
+    return this.changeDateOfBirth$Response(params, context).pipe(
+      map((r: StrictHttpResponse<DateOfBirthRequest>): DateOfBirthRequest => r.body)
+    );
+  }
+
+  /** Path part for operation `showAllUserInformation()` */
+  static readonly ShowAllUserInformationPath = '/user-settings/{userId}';
+
+  /**
+   * This method provides access to the full `HttpResponse`, allowing access to response headers.
+   * To access only the response body, use `showAllUserInformation()` instead.
+   *
+   * This method doesn't expect any request body.
+   */
+  showAllUserInformation$Response(params: ShowAllUserInformation$Params, context?: HttpContext): Observable<StrictHttpResponse<UserResponse>> {
+    return showAllUserInformation(this.http, this.rootUrl, params, context);
+  }
+
+  /**
+   * This method provides access only to the response body.
+   * To access the full response (for headers, for example), `showAllUserInformation$Response()` instead.
+   *
+   * This method doesn't expect any request body.
+   */
+  showAllUserInformation(params: ShowAllUserInformation$Params, context?: HttpContext): Observable<UserResponse> {
+    return this.showAllUserInformation$Response(params, context).pipe(
+      map((r: StrictHttpResponse<UserResponse>): UserResponse => r.body)
+    );
+  }
+
+  /** Path part for operation `deleteAccount()` */
+  static readonly DeleteAccountPath = '/user-settings/{userId}';
+
+  /**
+   * This method provides access to the full `HttpResponse`, allowing access to response headers.
+   * To access only the response body, use `deleteAccount()` instead.
+   *
+   * This method doesn't expect any request body.
+   */
+  deleteAccount$Response(params: DeleteAccount$Params, context?: HttpContext): Observable<StrictHttpResponse<void>> {
+    return deleteAccount(this.http, this.rootUrl, params, context);
+  }
+
+  /**
+   * This method provides access only to the response body.
+   * To access the full response (for headers, for example), `deleteAccount$Response()` instead.
+   *
+   * This method doesn't expect any request body.
+   */
+
+  deleteAccount(params: DeleteAccount$Params, context?: HttpContext): Observable<void> {
+    return this.deleteAccount$Response(params, context).pipe(
+      map((r: StrictHttpResponse<void>): void => r.body)
+    );
+  }
+
+
+  /** Path part for operation `getCurrentUserId()` */
+  static readonly GetCurrentUserIdPath = '/user-settings/currentId/{userId}';
+
+  /**
+   * This method provides access to the full `HttpResponse`, allowing access to response headers.
+   * To access only the response body, use `getCurrentUserId()` instead.
+   *
+   * This method doesn't expect any request body.
+   */
+  getCurrentUserId$Response(params: GetCurrentUserId$Params, context?: HttpContext): Observable<StrictHttpResponse<UserIdResponse>> {
+    return getCurrentUserId(this.http, this.rootUrl, params, context);
+  }
+
+  /**
+   * This method provides access only to the response body.
+   * To access the full response (for headers, for example), `getCurrentUserId$Response()` instead.
+   *
+   * This method doesn't expect any request body.
+   */
+  getCurrentUserId(params: GetCurrentUserId$Params, context?: HttpContext): Observable<UserIdResponse> {
+    return this.getCurrentUserId$Response(params, context).pipe(
+      map((r: StrictHttpResponse<UserIdResponse>): UserIdResponse => r.body)
+    );
+  }
+
+}
