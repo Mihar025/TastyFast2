@@ -27,6 +27,7 @@ public class OrderMapper {
 
     public OrderItemResponse mapToOrderItemResponse(OrderItem orderItem) {
         return OrderItemResponse.builder()
+                .itemId(orderItem.getId())
                 .itemType(orderItem.getItemType())
                 .itemName(orderItem.getItemName())
                 .quantity(orderItem.getQuantity())
