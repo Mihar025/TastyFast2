@@ -70,4 +70,12 @@ public class OrderController {
         OrderResponse cancelledOrder = orderService.cancelOrder(orderId, authentication);
         return ResponseEntity.ok(cancelledOrder);
     }
+
+    @DeleteMapping("deleteOrder/{orderId}")
+    public ResponseEntity<Void> deleteOrder(@PathVariable Integer orderId, Authentication connectedUser) {
+        User currentUser = ((User) connectedUser.getPrincipal());
+         orderService.deleteOrder(orderId, currentUser);
+         return ResponseEntity.noContent().build();
+    }
+
 }
