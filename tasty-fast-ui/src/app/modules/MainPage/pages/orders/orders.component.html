@@ -1,0 +1,31 @@
+<div class="container" *ngIf="orders; else loadingOrders">
+  <h2>Ваши заказы</h2>
+  <div *ngIf="orders.content && orders.content.length > 0; else noOrders">
+    <ul class="list-group">
+      <li *ngFor="let order of orders.content" class="list-group-item">
+        <h5>Номер заказа: {{ order.id }}</h5>
+        <p>Дата: {{ order.orderDate | date }}</p>
+        <p>Статус: {{ order.status }}</p>
+        <p>Общая сумма: {{ order.totalAmount | currency }}</p>
+        <button *ngIf="order.status === 'PENDING' && order.id !== undefined && order.id !== null"
+                class="btn btn-warning mr-2"
+                (click)="cancelOrder(order.id)">
+          Отменить заказ
+        </button>
+        <button *ngIf="order.id !== undefined"
+                class="btn btn-danger"
+                (click)="deleteOrder(order.id)">
+          Удалить заказ
+        </button>
+      </li>
+    </ul>
+  </div>
+</div>
+
+<ng-template #noOrders>
+  <p>У вас нет заказов.</p>
+</ng-template>
+
+<ng-template #loadingOrders>
+  <p>Загрузка заказов...</p>
+</ng-template>
