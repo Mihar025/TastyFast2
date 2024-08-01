@@ -1,0 +1,37 @@
+<div class="container">
+  <h2>Отзывы о ресторане</h2>
+
+  <!-- Форма для нового отзыва -->
+  <div class="card mb-4">
+    <div class="card-body">
+      <h3>Оставить отзыв</h3>
+      <form (ngSubmit)="submitFeedback()">
+        <div class="mb-3">
+          <label for="title" class="form-label">Заголовок</label>
+          <input type="text" class="form-control" id="title" [(ngModel)]="newFeedback.title" name="title" required>
+        </div>
+        <div class="mb-3">
+          <label for="comment" class="form-label">Комментарий</label>
+          <textarea class="form-control" id="comment" [(ngModel)]="newFeedback.comment" name="comment" required></textarea>
+        </div>
+        <button type="submit" class="btn btn-primary">Отправить отзыв</button>
+      </form>
+    </div>
+  </div>
+
+  <!-- Список отзывов -->
+  <div *ngIf="feedbacks && feedbacks.content?.length > 0; else null">
+    <div *ngFor="let feedback of feedbacks.content" class="card mb-3">
+      <div class="card-body">
+        <h5 class="card-title">{{ feedback.note }}</h5>
+        <p class="card-text">{{ feedback.comment }}</p>
+        <p class="card-text"><small class="text-muted">Автор: {{ feedback.ownFeedback }}</small></p>
+      </div>
+    </div>
+
+
+  <ng-template #noFeedback>
+    <p>Отзывов пока нет.</p>
+  </ng-template>
+</div>
+</div>
