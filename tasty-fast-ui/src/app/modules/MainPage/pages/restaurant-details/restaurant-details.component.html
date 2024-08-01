@@ -1,48 +1,73 @@
-<div class="container" *ngIf="restaurant">
-  <h2>{{ restaurant.restaurantName }}</h2>
-  <p>{{ restaurant.description}}</p>
+<div class="container">
+  <!-- Блоки уведомлений -->
+  <div *ngIf="successMessage" class="alert alert-success alert-dismissible fade show" role="alert">
+    {{ successMessage }}
+    <button type="button" class="btn-close" (click)="successMessage = null" aria-label="Close"></button>
+  </div>
 
-  <div *ngIf="restaurant.dishesResponses && restaurant.dishesResponses.length > 0">
-    <h4>Products</h4>
-    <div class="row">
-      <div class="col-md-4 mb-4" *ngFor="let dishes of restaurant.dishesResponses">
-        <div class="card">
-          <!--   <img [src]="'assets/images/' + product.image" class="card-img-top" alt="{{ product.productName }}"> -->
-          <div class="card-body">
-            <h5 class="card-title">{{ dishes.dishesName }}</h5>
-            <p class="card-text">{{ dishes.dishesDescription }}</p>
-            <p class="card-text"><strong>Price: {{ dishes.price | currency }}</strong></p>
-            <button class="btn btn-primary">Order</button>
+  <div *ngIf="errorMessage" class="alert alert-danger alert-dismissible fade show" role="alert">
+    {{ errorMessage }}
+    <button type="button" class="btn-close" (click)="errorMessage = null" aria-label="Close"></button>
+  </div>
+
+  <!-- Основной контент -->
+  <div *ngIf="restaurant">
+    <h2>{{ restaurant.restaurantName }}</h2>
+    <p>{{ restaurant.description }}</p>
+
+    <!-- Обновленная кнопка для просмотра отзывов -->
+    <button class="btn btn-info" [routerLink]="['/tasty-fast/restaurant-feedback', restaurant.restaurantId]">
+      Посмотреть отзывы
+    </button>
+
+    <div *ngIf="restaurant.dishesResponses && restaurant.dishesResponses.length > 0">
+      <h4>Блюда</h4>
+      <div class="row">
+        <div class="col-md-4 mb-4" *ngFor="let dish of restaurant.dishesResponses">
+          <div class="card">
+            <div class="card-body">
+              <h5 class="card-title">{{ dish.dishesName }}</h5>
+              <p class="card-text">ID: {{ dish.id }}</p>
+              <p class="card-text">{{ dish.dishesDescription }}</p>
+              <p class="card-text"><strong>Цена: {{ dish.price | currency }}</strong></p>
+              <div class="d-flex justify-content-between">
+                <button class="btn btn-primary" (click)="addToCart(dish, 'DISH')">Добавить в корзину</button>
+                <button class="btn btn-success" (click)="orderNow(dish, 'DISH')">Заказать сейчас</button>
+              </div>
+            </div>
           </div>
         </div>
       </div>
     </div>
-  </div>
 
-  <div *ngIf="restaurant.drinksResponses && restaurant.drinksResponses.length > 0">
-    <h4>Drinks</h4>
-    <div class="row">
-      <div class="col-md-4 mb-4" *ngFor="let drink of restaurant.drinksResponses">
-        <div class="card">
-          <!--       <img [src]="'assets/images/' + drink.image" class="card-img-top" alt="{{ drink.drinkName }}"> -->
-          <div class="card-body">
-            <h5 class="card-title">{{ drink.drinkName }}</h5>
-            <p class="card-text">{{ drink.drinkDescription }}</p>
-            <p class="card-text"><strong>Price: {{ drink.price | currency }}</strong></p>
-            <button class="btn btn-primary">Order</button>
+    <div *ngIf="restaurant.drinksResponses && restaurant.drinksResponses.length > 0">
+      <h4>Напитки</h4>
+      <div class="row">
+        <div class="col-md-4 mb-4" *ngFor="let drink of restaurant.drinksResponses">
+          <div class="card">
+            <div class="card-body">
+              <h5 class="card-title">{{ drink.drinkName }}</h5>
+              <p class="card-text">ID: {{ drink.id }}</p>
+              <p class="card-text">{{ drink.drinkDescription }}</p>
+              <p class="card-text"><strong>Цена: {{ drink.price | currency }}</strong></p>
+              <div class="d-flex justify-content-between">
+                <button class="btn btn-primary" (click)="addToCart(drink, 'DRINK')">Добавить в корзину</button>
+                <button class="btn btn-success" (click)="orderNow(drink, 'DRINK')">Заказать сейчас</button>
+              </div>
+            </div>
           </div>
         </div>
       </div>
     </div>
+
+    <div *ngIf="(!restaurant.dishesResponses || restaurant.dishesResponses.length === 0) && (!restaurant.drinksResponses || restaurant.drinksResponses.length === 0)">
+      <p>Нет доступных позиций в меню.</p>
+    </div>
   </div>
 
-  <div *ngIf="(!restaurant.dishesResponses || restaurant.dishesResponses.length === 0) && (!restaurant.drinksResponses || restaurant.drinksResponses.length === 0)">
-    <p>No menu items available.</p>
-  </div>
-</div>
-
-<div class="container" *ngIf="error">
-  <div class="alert alert-danger" role="alert">
-    {{ error }}
+  <div *ngIf="error">
+    <div class="alert alert-danger" role="alert">
+      {{ error }}
+    </div>
   </div>
 </div>
