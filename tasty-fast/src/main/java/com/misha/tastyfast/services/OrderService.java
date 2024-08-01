@@ -3,9 +3,8 @@ package com.misha.tastyfast.services;
 
 import com.misha.tastyfast.mapping.OrderMapper;
 import com.misha.tastyfast.model.*;
-import com.misha.tastyfast.repositories.OrderRepository;
-import com.misha.tastyfast.repositories.RestaurantRepository;
-import com.misha.tastyfast.repositories.StoreRepository;
+import com.misha.tastyfast.repositories.*;
+import com.misha.tastyfast.requests.cartRequests.CartItemRequest;
 import com.misha.tastyfast.requests.cartRequests.CartItemResponse;
 import com.misha.tastyfast.requests.cartRequests.CartResponse;
 import com.misha.tastyfast.requests.dishesRequests.DishesResponse;
@@ -16,11 +15,13 @@ import com.misha.tastyfast.requests.productRequests.ProductResponse;
 import jakarta.persistence.EntityNotFoundException;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.hibernate.id.CompositeNestedGeneratedValueGenerator;
 import org.springframework.cache.annotation.Cacheable;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
+import org.springframework.security.access.AccessDeniedException;
 import org.springframework.security.core.Authentication;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -42,6 +43,8 @@ public class OrderService {
     private final RestaurantRepository restaurantRepository;
     private final StoreRepository storeRepository;
     private final CartService cartService;
+    private final CartRepository cartRepository;
+    private final UserRepository userRepository;
 
     @Transactional
     public OrderResponse createOrder(OrderRequest orderRequest, Authentication authentication) {
@@ -62,7 +65,6 @@ public class OrderService {
         } else {
             throw new IllegalArgumentException("Invalid order type");
         }
-
         BigDecimal totalAmount = BigDecimal.ZERO;
         Integer totalQuantity = 0;
         log.info("Creating order for user: {}, order type: {}", user.getId(), orderRequest.getOrderType());
@@ -115,18 +117,27 @@ public class OrderService {
         return orderItem;
     }
 
-    @Cacheable(value = "orders", key = "#orderId + '_' + #authentication.name")
-    public Order getOrderById(Integer orderId, Authentication authentication) {
+   // @Cacheable(value = "orders", key = "#orderId + '_' + #authentication.name")
+    public OrderResponse getOrderById(Integer orderId, Authentication authentication) {
         User user = (User) authentication.getPrincipal();
-        return orderRepository.findByIdAndUser(orderId, user)
+        Order order = orderRepository.findByIdAndUser(orderId, user)
                 .orElseThrow(() -> new EntityNotFoundException("Order not found with ID: " + orderId));
+        return orderMapper.mapToOrderResponse(order);
     }
 
-    @Cacheable(value = "userOrders", key = "#authentication.name")
-    public PageResponse<OrderResponse> getUserOrders(int page, int size, Authentication authentication) {
+
+
+ //   @Cacheable(value = "userOrders", key = "#authentication.name")
+    public PageResponse<OrderResponse> getUserOrders(Integer userId, int page, int size, Authentication authentication) {
+
         User user = (User) authentication.getPrincipal();
+        if(!user.getId().equals(userId)){
+            throw new EntityNotFoundException("Cannot find user with provided id");
+        }
+        var existedUser = userRepository.findById(userId)
+                .orElseThrow(() -> new EntityNotFoundException("User not found"));
         Pageable pageable = PageRequest.of(page, size, Sort.by("orderDate").descending());
-        Page<Order> orders = orderRepository.findAllByUser(user, pageable);
+        Page<Order> orders = orderRepository.findAllOrdersByUserId(existedUser, pageable);
 
         List<OrderResponse> orderResponses = orders.getContent().stream()
                 .map(orderMapper::mapToOrderResponse)
@@ -141,30 +152,6 @@ public class OrderService {
                 orders.isFirst(),
                 orders.isLast()
         );
-    }
-
-
-    @Transactional
-    public OrderResponse createOrderFromCart (User user){
-        CartResponse cartResponse = cartService.getCartForUser(user);
-        if(cartResponse.getItems().isEmpty()){
-            throw new IllegalStateException("Cannot create order from empty cart!");
-        }
-        Order order = new Order();
-        order.setUser(user);
-        order.setOrderDate(LocalDateTime.now());
-        order.setStatus("PENDING");
-        BigDecimal totalAmount = BigDecimal.ZERO;
-
-        for (CartItemResponse cartItemResponse : cartResponse.getItems()) {
-            OrderItem orderItem = cartService.createOrderItemFromCartItem(cartItemResponse, order);
-            order.getOrderItems().add(orderItem);
-            totalAmount = totalAmount.add(orderItem.getPrice().multiply(BigDecimal.valueOf(orderItem.getQuantity())));
-        }
-
-        Order savedOrder = orderRepository.save(order);
-        cartService.clearCart(user);
-        return orderMapper.mapToOrderResponse(savedOrder);
     }
 
 
@@ -187,8 +174,134 @@ public class OrderService {
 
     }
 
+    @Transactional
+    public OrderResponse createOrderFromCart(User user) {
+        CartResponse cartResponse = cartService.getCartForUser(user);
+        if (cartResponse.getItems().isEmpty()) {
+            throw new IllegalStateException("Cannot create order from empty cart!");
+        }
 
+        Order order = new Order();
+        order.setUser(user);
+        order.setOrderDate(LocalDateTime.now());
+        order.setStatus("PENDING");
+        BigDecimal totalAmount = BigDecimal.ZERO;
+        int totalQuantity = 0;
 
+        for (CartItemResponse cartItemResponse : cartResponse.getItems()) {
+            OrderItem orderItem = new OrderItem();
+            orderItem.setOrder(order);
+            orderItem.setItemName(cartItemResponse.getItemName());
+            orderItem.setItemType(cartItemResponse.getItemType());
+            orderItem.setQuantity(cartItemResponse.getQuantity());
+            orderItem.setPrice(cartItemResponse.getPrice());
 
+            order.addOrderItem(orderItem);
+            totalAmount = totalAmount.add(orderItem.getPrice().multiply(BigDecimal.valueOf(orderItem.getQuantity())));
+            totalQuantity += orderItem.getQuantity();
+        }
+
+        order.setTotalAmount(totalAmount);
+        order.setQuantity(totalQuantity);
+
+        Order savedOrder = orderRepository.save(order);
+        cartService.clearCart(user);
+        return orderMapper.mapToOrderResponse(savedOrder);
+    }
+    @Transactional
+    public OrderResponse createOrderFromSingleItem(OrderRequest orderRequest, Authentication authentication) {
+        log.debug("Received order request: {}", orderRequest);
+
+        User user = (User) authentication.getPrincipal();
+        Order order = new Order();
+        order.setUser(user);
+        order.setOrderDate(LocalDateTime.now());
+        order.setStatus("PENDING");
+
+        if ("RESTAURANT".equals(orderRequest.getOrderType())) {
+            Restaurant restaurant = restaurantRepository.findById(orderRequest.getSourceId())
+                    .orElseThrow(() -> new EntityNotFoundException("Restaurant not found"));
+            order.setRestaurant(restaurant);
+        } else if ("STORE".equals(orderRequest.getOrderType())) {
+            Store store = storeRepository.findById(orderRequest.getSourceId())
+                    .orElseThrow(() -> new EntityNotFoundException("Store not found"));
+            order.setStore(store);
+        } else {
+            throw new IllegalArgumentException("Invalid order type");
+        }
+
+        if (orderRequest.getItems().isEmpty()) {
+            throw new IllegalArgumentException("Order must contain at least one item");
+        }
+
+        OrderItemRequest itemRequest = orderRequest.getItems().get(0);
+        if (itemRequest.getItemId() == null) {
+            log.error("Item ID is null in the request");
+            throw new IllegalArgumentException("Item ID must not be null");
+        }
+
+        OrderItem orderItem = createOrderItem(itemRequest, order, authentication);
+        order.getOrderItems().add(orderItem);
+        order.setTotalAmount(orderItem.getPrice().multiply(BigDecimal.valueOf(orderItem.getQuantity())));
+        order.setQuantity(orderItem.getQuantity());
+
+        log.debug("Saving order: {}", order);
+        Order savedOrder = orderRepository.save(order);
+        log.info("Order saved successfully with ID: {}", savedOrder.getId());
+        return orderMapper.mapToOrderResponse(savedOrder);
+    }
+
+    private OrderItem createOrderItemFromCartItem(CartItemRequest itemRequest, Order order, Authentication authentication) {
+        OrderItem orderItem = new OrderItem();
+        orderItem.setOrder(order);
+        orderItem.setQuantity(itemRequest.getQuantity());
+        orderItem.setItemType(itemRequest.getItemType());
+        orderItem.setId(itemRequest.getItemId());
+
+        switch (itemRequest.getItemType()) {
+            case "PRODUCT":
+                ProductResponse product = productService.findProductById(itemRequest.getItemId(), authentication);
+                orderItem.setItemName(product.getProductName());
+                orderItem.setPrice(product.getPrice());
+                break;
+            case "DISH":
+                DishesResponse dish = dishesService.findDishesById(itemRequest.getItemId(), authentication);
+                orderItem.setItemName(dish.getDishesName());
+                orderItem.setPrice(dish.getPrice());
+                break;
+            case "DRINK":
+                DrinksResponse drink = drinkService.findDrinkById(itemRequest.getItemId(), authentication);
+                orderItem.setItemName(drink.getDrinkName());
+                orderItem.setPrice(drink.getPrice());
+                break;
+            default:
+                throw new IllegalArgumentException("Invalid item type: " + itemRequest.getItemType());
+        }
+
+        return orderItem;
+    }
+
+    @Transactional
+    public OrderResponse cancelOrder(Integer orderId, Authentication authentication) {
+        User user = (User) authentication.getPrincipal();
+        Order order = orderRepository.findByIdAndUser(orderId, user)
+                .orElseThrow(() -> new EntityNotFoundException("Order not found with ID: " + orderId));
+
+        if (!"PENDING".equals(order.getStatus())) {
+            throw new IllegalStateException("Only pending orders can be cancelled");
+        }
+
+        order.setStatus("CANCELLED");
+        Order savedOrder = orderRepository.save(order);
+        log.info("Order {} cancelled for user {}", orderId, user.getId());
+        return orderMapper.mapToOrderResponse(savedOrder);
+    }
+
+    @Transactional
+    public void deleteOrder(Integer orderId, User currentUser) {
+        Order order = orderRepository.findById(orderId)
+                .orElseThrow(() -> new EntityNotFoundException("Order not found with ID: " + orderId));
+        orderRepository.delete(order);
+    }
 
 }
