@@ -7,6 +7,8 @@ import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.stereotype.Repository;
 
+import java.util.Optional;
+
 @Repository
 public interface FeedbackRepository extends JpaRepository<Feedback, Integer> {
     @Query("""
@@ -45,8 +47,19 @@ public interface FeedbackRepository extends JpaRepository<Feedback, Integer> {
     Page<Feedback> findAllByStoreId(Integer storeId, Pageable pageable);
 
 
+    @Query("""
+            SELECT feedback
+            FROM Feedback feedback
+            WHERE feedback.restaurant.id = :restaurantId
+            """)
+    Page<Feedback> findAllFeedbacksByRestaurantId(Integer restaurantId, Pageable pageable);
 
-
+    @Query("""
+            SELECT feedback
+            FROM Feedback feedback
+            WHERE feedback.store.id = :storeId
+            """)
+    Page<Feedback> findAllFeedbacksByStoreId(Integer storeId, Pageable pageable);
 
 
 }
