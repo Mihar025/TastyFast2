@@ -1,37 +1,38 @@
 <div class="container">
-  <h2>Отзывы о ресторане</h2>
+  <h2>Restaurant Feedbacks</h2>
 
-  <!-- Форма для нового отзыва -->
+  <!-- Existing feedbacks -->
+  <ng-container *ngIf="feedbacks">
+    <ng-container *ngIf="feedbacks.content && feedbacks.content.length > 0; else noFeedback">
+      <div *ngFor="let feedback of feedbacks.content" class="card mb-3">
+        <div class="card-body">
+          <h5 class="card-title">Rating: {{ feedback.note }}</h5>
+          <p class="card-text">{{ feedback.comment }}</p>
+          <p class="card-text"><small class="text-muted">Author: {{ feedback.ownFeedback ? 'Owner' : 'Customer' }}</small></p>
+          <button *ngIf="feedback.ownFeedback && feedback.id !== undefined" (click)="deleteFeedback(feedback.id)" class="btn btn-danger btn-sm">Delete</button>
+        </div>
+      </div>
+    </ng-container>
+  </ng-container>
+
   <div class="card mb-4">
     <div class="card-body">
-      <h3>Оставить отзыв</h3>
+      <h5 class="card-title">Leave a feedback</h5>
       <form (ngSubmit)="submitFeedback()">
         <div class="mb-3">
-          <label for="title" class="form-label">Заголовок</label>
-          <input type="text" class="form-control" id="title" [(ngModel)]="newFeedback.title" name="title" required>
+          <label for="note" class="form-label">Rating</label>
+          <input type="number" class="form-control" id="note" [(ngModel)]="newFeedback.note" name="note" min="1" max="5" required>
         </div>
         <div class="mb-3">
-          <label for="comment" class="form-label">Комментарий</label>
+          <label for="comment" class="form-label">Comment</label>
           <textarea class="form-control" id="comment" [(ngModel)]="newFeedback.comment" name="comment" required></textarea>
         </div>
-        <button type="submit" class="btn btn-primary">Отправить отзыв</button>
+        <button type="submit" class="btn btn-primary">Submit feedback</button>
       </form>
     </div>
   </div>
 
-  <!-- Список отзывов -->
-  <div *ngIf="feedbacks && feedbacks.content?.length > 0; else null">
-    <div *ngFor="let feedback of feedbacks.content" class="card mb-3">
-      <div class="card-body">
-        <h5 class="card-title">{{ feedback.note }}</h5>
-        <p class="card-text">{{ feedback.comment }}</p>
-        <p class="card-text"><small class="text-muted">Автор: {{ feedback.ownFeedback }}</small></p>
-      </div>
-    </div>
-
-
   <ng-template #noFeedback>
-    <p>Отзывов пока нет.</p>
+    <p>There are no feedbacks yet.</p>
   </ng-template>
-</div>
 </div>
