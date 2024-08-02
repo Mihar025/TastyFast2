@@ -1,0 +1,132 @@
+@import url('https://fonts.googleapis.com/css2?family=Roboto:wght@300;400;500;700&display=swap');
+
+body {
+  font-family: 'Roboto', sans-serif;
+  background: linear-gradient(120deg, #84fab0 0%, #8fd3f4 100%);
+  min-height: 100vh;
+  padding: 2rem 0;
+}
+
+.container {
+  background-color: rgba(255, 255, 255, 0.9);
+  border-radius: 15px;
+  box-shadow: 0 8px 32px rgba(31, 38, 135, 0.15);
+  backdrop-filter: blur(10px);
+  border: 1px solid rgba(255, 255, 255, 0.18);
+  padding: 2rem;
+  max-width: 800px;
+  margin: 0 auto;
+}
+
+h2 {
+  color: #2c3e50;
+  font-weight: 700;
+  margin-bottom: 2rem;
+  text-align: center;
+  text-transform: uppercase;
+  letter-spacing: 2px;
+}
+
+.list-group {
+  .list-group-item {
+    border: none;
+    background-color: rgba(255, 255, 255, 0.7);
+    border-radius: 10px;
+    margin-bottom: 1rem;
+    padding: 1.5rem;
+    transition: all 0.3s ease;
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+
+    &:hover {
+      transform: translateY(-5px);
+      box-shadow: 0 8px 15px rgba(0, 0, 0, 0.1);
+    }
+
+    h5 {
+      color: #3498db;
+      font-weight: 500;
+      margin-bottom: 1rem;
+    }
+
+    p {
+      margin-bottom: 0.5rem;
+      color: #34495e;
+    }
+
+    button {
+      margin-top: 1rem;
+      transition: all 0.3s ease;
+
+      &:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 4px 8px rgba(0, 0, 0, 0.15);
+      }
+    }
+
+    .btn-warning {
+      background-color: #f39c12;
+      border-color: #f39c12;
+      color: white;
+
+      &:hover {
+        background-color: #e67e22;
+        border-color: #e67e22;
+      }
+    }
+
+    .btn-danger {
+      background-color: #e74c3c;
+      border-color: #e74c3c;
+
+      &:hover {
+        background-color: #c0392b;
+        border-color: #c0392b;
+      }
+    }
+  }
+}
+
+// Анимация появления элементов
+@keyframes fadeInUp {
+  from {
+    opacity: 0;
+    transform: translate3d(0, 40px, 0);
+  }
+  to {
+    opacity: 1;
+    transform: translate3d(0, 0, 0);
+  }
+}
+
+.list-group-item {
+  animation: fadeInUp 0.5s ease-out;
+  animation-fill-mode: both;
+}
+
+// Задержка для каждого элемента
+@for $i from 1 through 10 {
+  .list-group-item:nth-child(#{$i}) {
+    animation-delay: #{$i * 0.1}s;
+  }
+}
+
+// Стили для сообщений о загрузке и отсутствии заказов
+ng-template {
+  p {
+    text-align: center;
+    font-size: 1.2rem;
+    color: #7f8c8d;
+    margin-top: 2rem;
+  }
+}
+
+// Медиа-запрос для мобильных устройств
+@media (max-width: 768px) {
+  .container {
+    padding: 1rem;
+  }
+
+  .list-group-item {
+    padding: 1rem;
+  }
+}
