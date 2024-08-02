@@ -8,13 +8,13 @@ import { RequestBuilder } from '../../request-builder';
 
 
 export interface DeleteFeedback$Params {
-  businessId: number;
+  feedbackId: number;
 }
 
 export function deleteFeedback(http: HttpClient, rootUrl: string, params: DeleteFeedback$Params, context?: HttpContext): Observable<StrictHttpResponse<void>> {
   const rb = new RequestBuilder(rootUrl, deleteFeedback.PATH, 'delete');
   if (params) {
-    rb.path('businessId', params.businessId, {});
+    rb.path('feedbackId', params.feedbackId, {});
   }
 
   return http.request(
@@ -27,4 +27,4 @@ export function deleteFeedback(http: HttpClient, rootUrl: string, params: Delete
   );
 }
 
-deleteFeedback.PATH = '/feedbacks/{businessId}';
+deleteFeedback.PATH = '/feedbacks/{feedbackId}';
