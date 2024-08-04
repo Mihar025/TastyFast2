@@ -21,7 +21,7 @@ public record DishesRequest(
         BigDecimal calories,
 
         boolean inStock,
-
+        String logo,
         String category,
         Integer quantity
 
