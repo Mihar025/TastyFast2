@@ -32,7 +32,7 @@ public class Dishes extends BaseEntity {
     private boolean inStock;
     private String category;
     private Integer quantity;
-
+    private String logo;
 
 
     @ManyToOne
