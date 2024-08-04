@@ -18,6 +18,7 @@ public class DrinkMapper {
                 .calories(request.calories())
                 .inStock(request.inStock())
                 .quantity(request.quantity())
+                .logo(request.logo())
                 .build();
     }
 
@@ -32,6 +33,7 @@ public class DrinkMapper {
                 .inStock(request.isInStock())
                 .rate(request.getRate())
                 .quantity(request.getQuantity())
+                .logo(request.getLogo())
                 .build();
     }
 
