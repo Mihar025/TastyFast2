@@ -17,6 +17,7 @@ public class DishesMapper {
                 .calories(dishesRequest.calories())
                 .inStock(dishesRequest.inStock())
                 .quantity(dishesRequest.quantity())
+                .logo(dishesRequest.logo())
                 .build();
 
     }
@@ -33,6 +34,7 @@ public class DishesMapper {
                 .inStock(dishes.isInStock())
                 .cover(FileUtils.readFileFromLocation(dishes.getDishesCover()))
                 .rate(dishes.getRate())
+                .logo(dishes.getLogo())
                 .quantity(dishes.getQuantity())
                 .build();
     }
