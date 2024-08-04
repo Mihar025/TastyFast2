@@ -16,6 +16,7 @@ import { DrinkControllerService } from './services/drink-controller.service';
 import { DishesControllerService } from './services/dishes-controller.service';
 import { AuthenticationService } from './services/authentication.service';
 import { UserControllerService } from './services/user-controller.service';
+import { FileControllerService } from './services/file-controller.service';
 
 /**
  * Module that provides all services and configuration.
@@ -37,6 +38,7 @@ import { UserControllerService } from './services/user-controller.service';
     DishesControllerService,
     AuthenticationService,
     UserControllerService,
+    FileControllerService,
     ApiConfiguration
   ],
 })
