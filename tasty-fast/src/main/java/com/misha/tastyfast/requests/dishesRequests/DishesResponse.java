@@ -20,5 +20,6 @@ public class DishesResponse {
     private byte[] cover;
     private double rate;
     private Integer quantity;
+     private String logo;
 
 }
