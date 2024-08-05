@@ -3,9 +3,12 @@ package com.misha.tastyfast.services;
 import com.misha.tastyfast.comon.DrinkSpecification;
 import com.misha.tastyfast.mapping.DrinkMapper;
 import com.misha.tastyfast.model.Drink;
+import com.misha.tastyfast.model.Store;
 import com.misha.tastyfast.model.User;
 import com.misha.tastyfast.repositories.DrinkRepository;
 import com.misha.tastyfast.requests.drinkRequests.DrinkRequest;
+import com.misha.tastyfast.requests.drinkRequests.DrinkRequestForRestaurant;
+import com.misha.tastyfast.requests.drinkRequests.DrinkRequestForStore;
 import com.misha.tastyfast.requests.drinkRequests.DrinksResponse;
 import com.misha.tastyfast.requests.pageResponse.PageResponse;
 import com.misha.tastyfast.transactionHistory.DrinksTransactionHistoryRepository;
@@ -15,8 +18,10 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
+import org.springframework.security.access.AccessDeniedException;
 import org.springframework.security.core.Authentication;
 import org.springframework.stereotype.Service;
+import org.springframework.web.multipart.MultipartFile;
 
 import java.util.List;
 
@@ -73,6 +78,25 @@ public class DrinkService {
         Page<Drink> drinks = drinkRepository.findAll(DrinkSpecification.withOwnerId(user.getId()), pageable);
         List<DrinksResponse> drinksResponses = drinks.stream().map(drinkMapper::toDrinkResponse).toList();
         return new PageResponse<>();
+    }
+
+
+    public void uploadDrinkLogo(MultipartFile file, Authentication authentication, Integer drinkId){
+        Drink drink = drinkRepository.findById(drinkId)
+                .orElseThrow(() -> new EntityNotFoundException("Cannot find drink with id: " + drinkId));
+        User user = (User) authentication.getPrincipal();
+
+        if(!drink.getOwner().getId().equals(user.getId())){
+            throw new AccessDeniedException("You don't have permission to upload logo for this store");
+        }
+        String logoPath = fileStorageService.saveDrinkFile(file, drink, user.getId());
+        if (logoPath == null) {
+            throw new RuntimeException("Failed to save restaurant logo");
+        }if (logoPath.startsWith("./")) {
+            logoPath = logoPath.substring(2);
+        }
+        drink.setLogo(logoPath);
+        drinkRepository.save(drink);
     }
 
 
