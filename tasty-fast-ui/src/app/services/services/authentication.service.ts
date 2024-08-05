@@ -20,6 +20,10 @@ import { registerBusinessAccount } from '../fn/authentication/register-business-
 import { RegisterBusinessAccount$Params } from '../fn/authentication/register-business-account';
 import { registerUser } from '../fn/authentication/register-user';
 import { RegisterUser$Params } from '../fn/authentication/register-user';
+import { checkStoreOwnership } from '../fn/authentication/check-store-ownership';
+import { CheckStoreOwnership$Params } from '../fn/authentication/check-store-ownership';
+import { checkRestaurantOwnership } from '../fn/authentication/check-restaurant-ownership';
+import { CheckRestaurantOwnership$Params } from '../fn/authentication/check-restaurant-ownership';
 
 @Injectable({ providedIn: 'root' })
 export class AuthenticationService extends BaseService {
@@ -179,4 +183,53 @@ export class AuthenticationService extends BaseService {
     );
   }
 
+  /** Path part for operation `checkStoreOwnership()` */
+  static readonly CheckStoreOwnershipPath = '/auth/check-store-ownership/{ownerId}/{storeId}';
+
+  /**
+   * This method provides access to the full `HttpResponse`, allowing access to response headers.
+   * To access only the response body, use `checkStoreOwnership()` instead.
+   *
+   * This method doesn't expect any request body.
+   */
+  checkStoreOwnership$Response(params: CheckStoreOwnership$Params, context?: HttpContext): Observable<StrictHttpResponse<boolean>> {
+    return checkStoreOwnership(this.http, this.rootUrl, params, context);
+  }
+
+  /**
+   * This method provides access only to the response body.
+   * To access the full response (for headers, for example), `checkStoreOwnership$Response()` instead.
+   *
+   * This method doesn't expect any request body.
+   */
+  checkStoreOwnership(params: CheckStoreOwnership$Params, context?: HttpContext): Observable<boolean> {
+    return this.checkStoreOwnership$Response(params, context).pipe(
+      map((r: StrictHttpResponse<boolean>): boolean => r.body)
+    );
+  }
+
+  /** Path part for operation `checkRestaurantOwnership()` */
+  static readonly CheckRestaurantOwnershipPath = '/auth/check-restaurant-ownership/{ownerId}/{restaurantId}';
+
+  /**
+   * This method provides access to the full `HttpResponse`, allowing access to response headers.
+   * To access only the response body, use `checkRestaurantOwnership()` instead.
+   *
+   * This method doesn't expect any request body.
+   */
+  checkRestaurantOwnership$Response(params: CheckRestaurantOwnership$Params, context?: HttpContext): Observable<StrictHttpResponse<boolean>> {
+    return checkRestaurantOwnership(this.http, this.rootUrl, params, context);
+  }
+
+  /**
+   * This method provides access only to the response body.
+   * To access the full response (for headers, for example), `checkRestaurantOwnership$Response()` instead.
+   *
+   * This method doesn't expect any request body.
+   */
+  checkRestaurantOwnership(params: CheckRestaurantOwnership$Params, context?: HttpContext): Observable<boolean> {
+    return this.checkRestaurantOwnership$Response(params, context).pipe(
+      map((r: StrictHttpResponse<boolean>): boolean => r.body)
+    );
+  }
 }
