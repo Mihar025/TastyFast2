@@ -1,0 +1,98 @@
+@import url('https://fonts.googleapis.com/css2?family=Roboto:wght@300;400;500;700&display=swap');
+
+:host {
+  display: block;
+  font-family: 'Roboto', sans-serif;
+  background-color: #f8f9fa;
+  padding: 2rem 0;
+}
+
+.container {
+  max-width: 600px;
+  margin: 0 auto;
+  background-color: #fff;
+  border-radius: 8px;
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+  padding: 2rem;
+}
+
+h2 {
+  text-align: center;
+  margin-bottom: 2rem;
+  color: #333;
+  font-size: 1.8rem;
+  font-weight: 500;
+}
+
+.dish-form {
+  .form-group {
+    margin-bottom: 1.5rem;
+
+    label {
+      display: block;
+      margin-bottom: 0.5rem;
+      font-weight: 500;
+      color: #555;
+    }
+
+    .form-control {
+      width: 100%;
+      padding: 0.75rem;
+      border: 1px solid #ced4da;
+      border-radius: 4px;
+      font-size: 1rem;
+      color: #495057;
+
+      &:focus {
+        border-color: #80bdff;
+        outline: none;
+        box-shadow: 0 0 0 0.2rem rgba(0, 123, 255, 0.25);
+      }
+    }
+
+    textarea.form-control {
+      min-height: 100px;
+      resize: vertical;
+    }
+  }
+
+  .btn-primary {
+    width: 100%;
+    padding: 0.75rem;
+    background-color: #007bff;
+    border-color: #007bff;
+    font-size: 1rem;
+    font-weight: 500;
+    color: #fff;
+    border-radius: 4px;
+    transition: background-color 0.3s ease, border-color 0.3s ease;
+
+    &:hover:not(:disabled) {
+      background-color: #0056b3;
+      border-color: #004085;
+    }
+
+    &:disabled {
+      background-color: #d6d8db;
+      border-color: #d6d8db;
+      cursor: not-allowed;
+    }
+  }
+}
+
+@media (max-width: 576px) {
+  .container {
+    padding: 1.5rem;
+  }
+
+  h2 {
+    font-size: 1.5rem;
+  }
+
+  .dish-form {
+    .btn-primary {
+      font-size: 0.9rem;
+      padding: 0.6rem;
+    }
+  }
+}
