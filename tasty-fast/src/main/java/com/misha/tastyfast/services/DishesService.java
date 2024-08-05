@@ -105,8 +105,8 @@ public class DishesService {
         }
         dishes.setLogo(logoPath);
         dishesRepository.save(dishes);
-
     }
+
 
 
 }
