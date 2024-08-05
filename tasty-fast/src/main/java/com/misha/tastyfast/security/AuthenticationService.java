@@ -2,17 +2,18 @@ package com.misha.tastyfast.security;
 
 import com.misha.tastyfast.exception.AccountDissabledException;
 import com.misha.tastyfast.exception.EmailorPasswordAlreadyExistException;
+import com.misha.tastyfast.model.Restaurant;
+import com.misha.tastyfast.model.Store;
 import com.misha.tastyfast.model.User;
 import com.misha.tastyfast.model.UserRoles;
-import com.misha.tastyfast.repositories.RoleRepository;
-import com.misha.tastyfast.repositories.TokenRepository;
-import com.misha.tastyfast.repositories.UserRepository;
+import com.misha.tastyfast.repositories.*;
 import com.misha.tastyfast.requests.registrationRequests.RegistrationBusinessAccountRequest;
 import com.misha.tastyfast.requests.registrationRequests.RegistrationRequest;
 import com.misha.tastyfast.role.Role;
 import com.misha.tastyfast.services.EmailService;
 import com.misha.tastyfast.services.EmailTemplateName;
 import jakarta.mail.MessagingException;
+import jakarta.persistence.EntityNotFoundException;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.dao.DataIntegrityViolationException;
@@ -20,10 +21,12 @@ import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.BadCredentialsException;
 import org.springframework.security.authentication.DisabledException;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
+import org.springframework.security.core.Authentication;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
+import java.nio.file.AccessDeniedException;
 import java.security.SecureRandom;
 import java.time.LocalDateTime;
 import java.util.Collections;
@@ -41,10 +44,51 @@ public class AuthenticationService {
     private final EmailService emailService;
     private final AuthenticationManager authenticationManager;
     private final JwtService jwtService;
+    private final RestaurantRepository restaurantRepository;
+    private final StoreRepository storeRepository;
 
     @Value("${application.mailing.frontend.activation-url}")
     private String activationUrl;
 
+    public boolean checkRestaurantOwnership(Integer ownerId, Integer restaurantId, Authentication connectedUser) throws AccessDeniedException {
+        User user = ((User) connectedUser.getPrincipal());
+        System.out.println("user: " + user.getId());
+        if (!user.getId().equals(ownerId)) {
+            throw new AccessDeniedException("User with id " + ownerId + " is not the authenticated user");
+        }
+
+        Restaurant restaurant = restaurantRepository.findById(restaurantId)
+                .orElseThrow(() -> new EntityNotFoundException("Restaurant with id " + restaurantId + " not found"));
+
+  /*      System.out.println("user: " + user.getId());
+        System.out.println("restaurant: " + restaurant.getId());
+        System.out.println("restaurant: " + restaurant.getOwner());
+        boolean var = restaurant.getOwner().equals(user.getId());
+        System.out.println(var);
+
+   */
+        if (!restaurant.getOwner().getId().equals(user.getId())) {
+            return false;
+        }
+            return true;
+    }
+
+
+    public boolean checkStoreOwnership(Integer ownerId, Integer storeId, Authentication connectedUser) throws AccessDeniedException {
+        User user = ((User) connectedUser.getPrincipal());
+
+        if (!user.getId().equals(ownerId)) {
+            throw new AccessDeniedException("User with id " + ownerId + " is not the authenticated user");
+        }
+
+        Store store = storeRepository.findById(storeId)
+                .orElseThrow(() -> new EntityNotFoundException("Restaurant with id " + storeId + " not found"));
+
+        if (!store.getOwner().getId().equals(user.getId())) {
+            return false;
+        }
+        return true;
+    }
 
 
     public void register(RegistrationRequest request, UserRoles userRoles ) throws MessagingException {
