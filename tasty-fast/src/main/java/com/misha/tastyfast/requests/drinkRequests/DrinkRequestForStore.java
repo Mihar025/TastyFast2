@@ -10,6 +10,7 @@ public record DrinkRequestForStore(
     String drinkCategory,
     BigDecimal calories,
     boolean inStock,
+    String logo,
      boolean isAlcohol
 ) {
 }
