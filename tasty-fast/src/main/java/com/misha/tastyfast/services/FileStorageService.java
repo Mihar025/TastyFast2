@@ -1,8 +1,6 @@
 package com.misha.tastyfast.services;
 
-import com.misha.tastyfast.model.Dishes;
-import com.misha.tastyfast.model.Drink;
-import com.misha.tastyfast.model.Product;
+import com.misha.tastyfast.model.*;
 import lombok.NonNull;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -31,8 +29,8 @@ public class FileStorageService {
             @NonNull Product product,
             @NonNull Integer id
     ) {
-        final String fileUploadSubPath = "user" + separator + id;
-        return uploadFile(sourceFile, fileUploadsPath);
+        final String fileUploadSubPath = "product" + separator + product.getId();
+        return uploadFile(sourceFile, fileUploadsPath + separator + fileUploadSubPath);
     }
 
     public String saveDishesFile(
@@ -40,52 +38,61 @@ public class FileStorageService {
             @NonNull Dishes dishes,
             @NonNull Integer id
     ) {
-        final String fileUploadSubPath = "user" + separator + id;
-        return uploadFile(sourceFile, fileUploadsPath);
+        final String fileUploadSubPath = "dishes" + separator + dishes.getId();
+        return uploadFile(sourceFile, fileUploadsPath + separator + fileUploadSubPath);
     }
 
-    public String saveDishesFile(
+    public String saveDrinkFile(
             @NonNull MultipartFile sourceFile,
             @NonNull Drink drink,
             @NonNull Integer id
     ) {
-        final String fileUploadSubPath = "user" + separator + id;
-        return uploadFile(sourceFile, fileUploadsPath);
+        final String fileUploadSubPath = "drink" + separator + drink.getId();
+        return uploadFile(sourceFile, fileUploadsPath + separator + fileUploadSubPath);
     }
 
+    public String saveRestaurantFile(
+            @NonNull MultipartFile sourceFile,
+            @NonNull Restaurant restaurant,
+            @NonNull Integer id
+    ) {
+        final String fileUploadSubPath = "restaurant" + separator + restaurant.getId();
+        return uploadFile(sourceFile, fileUploadsPath + separator + fileUploadSubPath);
+    }
 
-
+    public String saveStoreFile(
+            @NonNull MultipartFile sourceFile,
+            @NonNull Store store,
+            @NonNull Integer id
+    ) {
+        final String fileUploadSubPath = "store" + separator + store.getId();
+        return uploadFile(sourceFile, fileUploadsPath + separator + fileUploadSubPath);
+    }
 
     private String uploadFile(@NonNull MultipartFile sourceFile,
                               @NonNull String fileUploadPath) {
-
-        final String finalUploadFile = fileUploadPath + separator + fileUploadPath;
         File targetFolder = new File(fileUploadPath);
         if(!targetFolder.exists()){
             boolean folderCreated = targetFolder.mkdirs();
             if(!folderCreated){
-                log.warn("Fail to create the target folder");
+                log.warn("Failed to create the target folder: {}", fileUploadPath);
                 return null;
             }
         }
+
         final String fileExtension = getFileExtension(sourceFile.getOriginalFilename());
+        String fileName = currentTimeMillis() + "." + fileExtension;
+        Path targetPath = Paths.get(fileUploadPath, fileName);
 
-        String targetFilePath = finalUploadFile + separator + currentTimeMillis() + "." + fileExtension;
-        Path targetPath = Paths.get(targetFilePath);
-
-        try{
+        try {
             Files.write(targetPath, sourceFile.getBytes());
-            log.info("File saved to " + targetFilePath);
-            return targetFilePath;
-
-        }catch (IOException e){
-            log.error("Files wasn't saved", e);
+            log.info("File saved to {}", targetPath);
+            return targetPath.toString();
+        } catch (IOException e) {
+            log.error("File wasn't saved", e);
+            return null;
         }
-        return null;
     }
-
-
-
 
     private String getFileExtension(String filename) {
         if(filename == null || filename.isEmpty()){
@@ -98,6 +105,4 @@ public class FileStorageService {
         }
         return filename.substring(lastDotIndex + 1).toLowerCase();
     }
-
-
 }
