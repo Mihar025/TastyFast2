@@ -18,7 +18,9 @@ public class DrinksResponse {
     private BigDecimal calories;
     private String owner;
     private boolean inStock;
+    private boolean isAlcohol;
     private double rate;
     private Integer quantity;
+    private String logo;
 
 }
