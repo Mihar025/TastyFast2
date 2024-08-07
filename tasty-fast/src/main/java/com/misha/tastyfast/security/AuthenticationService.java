@@ -60,13 +60,6 @@ public class AuthenticationService {
         Restaurant restaurant = restaurantRepository.findById(restaurantId)
                 .orElseThrow(() -> new EntityNotFoundException("Restaurant with id " + restaurantId + " not found"));
 
-  /*      System.out.println("user: " + user.getId());
-        System.out.println("restaurant: " + restaurant.getId());
-        System.out.println("restaurant: " + restaurant.getOwner());
-        boolean var = restaurant.getOwner().equals(user.getId());
-        System.out.println(var);
-
-   */
         if (!restaurant.getOwner().getId().equals(user.getId())) {
             return false;
         }
@@ -88,6 +81,15 @@ public class AuthenticationService {
             return false;
         }
         return true;
+    }
+
+    public boolean checkUserOwnership(Integer userId, Authentication authentication) throws java.nio.file.AccessDeniedException {
+        User user = (User) authentication.getPrincipal();
+        if (!user.getId().equals(userId)) {
+            throw new java.nio.file.AccessDeniedException("User with id " + userId + " is not the authenticated user");
+        }
+        return (user.getRoles().stream()
+                .anyMatch(role -> role.getName().equals("BUSINESS_OWNER")));
     }
 
 

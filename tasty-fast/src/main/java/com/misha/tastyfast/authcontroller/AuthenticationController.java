@@ -1,5 +1,6 @@
 package com.misha.tastyfast.authcontroller;
 
+import com.misha.tastyfast.model.User;
 import com.misha.tastyfast.requests.registrationRequests.RegistrationBusinessAccountRequest;
 import com.misha.tastyfast.requests.registrationRequests.RegistrationRequest;
 import com.misha.tastyfast.security.AuthenticationRequest;
@@ -101,6 +102,17 @@ public class AuthenticationController {
         authenticationService.logout(token);
         return ResponseEntity.ok("Logout successfully");
     }
+
+    @GetMapping("/check-business-owner/{userId}")
+    public ResponseEntity<Boolean> checkBusinessOwner(@PathVariable Integer userId, Authentication authentication) {
+        try {
+            boolean isBusinessOwner = authenticationService.checkUserOwnership(userId, authentication);
+            return ResponseEntity.ok(isBusinessOwner);
+        } catch (AccessDeniedException | java.nio.file.AccessDeniedException e) {
+            return ResponseEntity.status(HttpStatus.FORBIDDEN).body(false);
+        }
+    }
+
 
 
 

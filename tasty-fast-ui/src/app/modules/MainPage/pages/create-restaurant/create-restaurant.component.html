@@ -1,0 +1,66 @@
+<div class="container">
+  <h2>Create Restaurant</h2>
+  <form [formGroup]="restaurantForm" (ngSubmit)="onSubmit()" class="restaurant-form">
+    <div class="form-group">
+      <label for="restaurantName">Restaurant Name</label>
+      <input type="text" id="restaurantName" formControlName="restaurantName" class="form-control" required>
+    </div>
+
+    <div class="form-group">
+      <label for="description">Description</label>
+      <textarea id="description" formControlName="description" class="form-control"></textarea>
+    </div>
+
+    <div class="form-group">
+      <label for="email">Email</label>
+      <input type="email" id="email" formControlName="email" class="form-control" required>
+    </div>
+
+    <div class="form-group">
+      <label for="phoneNumber">Phone Number</label>
+      <input type="tel" id="phoneNumber" formControlName="phoneNumber" class="form-control" required>
+    </div>
+
+    <div class="form-group">
+      <label for="openingHours">Opening Hours</label>
+      <input type="text" id="openingHours" formControlName="openingHours" class="form-control">
+    </div>
+
+    <div class="form-group">
+      <label for="websiteUrl">Website URL</label>
+      <input type="url" id="websiteUrl" formControlName="websiteUrl" class="form-control">
+    </div>
+
+    <div class="form-group">
+      <label for="address">Address</label>
+      <input type="text" id="address" formControlName="address" class="form-control" required>
+    </div>
+
+    <div class="form-group">
+      <label for="logo">Logo URL</label>
+      <input type="url" id="logo" formControlName="logo" class="form-control">
+    </div>
+
+    <div class="form-group">
+      <label for="cuisineType">Cuisine Type</label>
+      <input type="text" id="cuisineType" formControlName="cuisineType" class="form-control">
+    </div>
+
+    <div class="form-group">
+      <label for="seatingCapacity">Seating Capacity</label>
+      <input type="number" id="seatingCapacity" formControlName="seatingCapacity" class="form-control">
+    </div>
+
+    <div class="form-group checkbox">
+      <input type="checkbox" id="active" formControlName="active">
+      <label for="active">Active</label>
+    </div>
+
+    <div class="form-group checkbox">
+      <input type="checkbox" id="deliveryAvailable" formControlName="deliveryAvailable">
+      <label for="deliveryAvailable">Delivery Available</label>
+    </div>
+
+    <button type="submit" class="btn btn-primary" [disabled]="!restaurantForm.valid">Create Restaurant</button>
+  </form>
+</div>
