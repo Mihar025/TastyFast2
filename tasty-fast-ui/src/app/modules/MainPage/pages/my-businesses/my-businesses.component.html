@@ -1,0 +1,58 @@
+<div class="container">
+  <h2>All My Businesses</h2>
+  <div class="section-header">
+    <h2>Restaurant</h2>
+    <button (click)="navigateToCreateRestaurant()" class="btn btn-primary">Create New Restaurant</button>
+  </div>
+  <div class="restaurant-grid">
+    <div *ngFor="let restaurant of restaurantResponse.content" class="restaurant-card">
+      <div class="restaurant-image">
+        <img [src]="getRestaurantImage(restaurant)">
+      </div>
+      <div class="restaurant-info">
+        <h3>{{ restaurant.restaurantName }}</h3>
+        <p>{{ restaurant.description }}</p>
+        <button (click)="displayRestaurantDetails(restaurant)" class="btn-view-details">View Details</button>
+      </div>
+    </div>
+  </div>
+
+  <div class="section-header">
+    <h2>Stores</h2>
+    <button (click)="navigateToCreateStore()" class="btn btn-primary">Create New Store</button>
+  </div>
+  <div class="restaurant-grid">
+    <div *ngFor="let store of storeResponse.content" class="store-card">
+      <div class="store-image">
+        <img [src]="getStoreImage(store)">
+
+      </div>
+      <div class="store-info">
+        <h3>{{ store.storeName }}</h3>
+        <p>{{ store.description }}</p>
+        <button (click)="displayStoreDetails(store)" class="btn btn-primary">View Details</button>      </div>
+    </div>
+  </div>
+
+
+  <nav *ngIf="pages.length > 1" aria-label="Restaurant pagination" class="pagination-container">
+    <ul class="pagination">
+      <li [class.disabled]="page === 0">
+        <a href="javascript:void(0)" (click)="goToFirstPage()">First</a>
+      </li>
+      <li [class.disabled]="page === 0">
+        <a href="javascript:void(0)" (click)="goToPreviousPage()">Previous</a>
+      </li>
+      <li *ngFor="let pageNum of pages" [class.active]="pageNum === page">
+        <a href="javascript:void(0)" (click)="gotToPage(pageNum)">{{ pageNum + 1 }}</a>
+      </li>
+      <li [class.disabled]="isLastPage">
+        <a href="javascript:void(0)" (click)="goToNextPage()">Next</a>
+      </li>
+      <li [class.disabled]="isLastPage">
+        <a href="javascript:void(0)" (click)="goToLastPage()">Last</a>
+      </li>
+    </ul>
+  </nav>
+</div>
+
