@@ -1,3 +1,5 @@
+/* tslint:disable */
+/* eslint-disable */
 import { HttpClient, HttpContext } from '@angular/common/http';
 import { Injectable } from '@angular/core';
 import { Observable } from 'rxjs';
@@ -10,6 +12,10 @@ import { StrictHttpResponse } from '../strict-http-response';
 import { authenticate } from '../fn/authentication/authenticate';
 import { Authenticate$Params } from '../fn/authentication/authenticate';
 import { AuthenticationResponse } from '../models/authentication-response';
+import { checkRestaurantOwnership } from '../fn/authentication/check-restaurant-ownership';
+import { CheckRestaurantOwnership$Params } from '../fn/authentication/check-restaurant-ownership';
+import { checkStoreOwnership } from '../fn/authentication/check-store-ownership';
+import { CheckStoreOwnership$Params } from '../fn/authentication/check-store-ownership';
 import { confirm } from '../fn/authentication/confirm';
 import { Confirm$Params } from '../fn/authentication/confirm';
 import { logout } from '../fn/authentication/logout';
@@ -20,10 +26,8 @@ import { registerBusinessAccount } from '../fn/authentication/register-business-
 import { RegisterBusinessAccount$Params } from '../fn/authentication/register-business-account';
 import { registerUser } from '../fn/authentication/register-user';
 import { RegisterUser$Params } from '../fn/authentication/register-user';
-import { checkStoreOwnership } from '../fn/authentication/check-store-ownership';
-import { CheckStoreOwnership$Params } from '../fn/authentication/check-store-ownership';
-import { checkRestaurantOwnership } from '../fn/authentication/check-restaurant-ownership';
-import { CheckRestaurantOwnership$Params } from '../fn/authentication/check-restaurant-ownership';
+import { checkBusinessOwner } from '../fn/authentication/check-business-owner';
+import { CheckBusinessOwner$Params } from '../fn/authentication/check-business-owner';
 
 @Injectable({ providedIn: 'root' })
 export class AuthenticationService extends BaseService {
@@ -158,31 +162,6 @@ export class AuthenticationService extends BaseService {
     );
   }
 
-  /** Path part for operation `confirm()` */
-  static readonly ConfirmPath = '/auth/activate-account';
-
-  /**
-   * This method provides access to the full `HttpResponse`, allowing access to response headers.
-   * To access only the response body, use `confirm()` instead.
-   *
-   * This method doesn't expect any request body.
-   */
-  confirm$Response(params: Confirm$Params, context?: HttpContext): Observable<StrictHttpResponse<void>> {
-    return confirm(this.http, this.rootUrl, params, context);
-  }
-
-  /**
-   * This method provides access only to the response body.
-   * To access the full response (for headers, for example), `confirm$Response()` instead.
-   *
-   * This method doesn't expect any request body.
-   */
-  confirm(params: Confirm$Params, context?: HttpContext): Observable<void> {
-    return this.confirm$Response(params, context).pipe(
-      map((r: StrictHttpResponse<void>): void => r.body)
-    );
-  }
-
   /** Path part for operation `checkStoreOwnership()` */
   static readonly CheckStoreOwnershipPath = '/auth/check-store-ownership/{ownerId}/{storeId}';
 
@@ -229,6 +208,56 @@ export class AuthenticationService extends BaseService {
    */
   checkRestaurantOwnership(params: CheckRestaurantOwnership$Params, context?: HttpContext): Observable<boolean> {
     return this.checkRestaurantOwnership$Response(params, context).pipe(
+      map((r: StrictHttpResponse<boolean>): boolean => r.body)
+    );
+  }
+
+  /** Path part for operation `confirm()` */
+  static readonly ConfirmPath = '/auth/activate-account';
+
+  /**
+   * This method provides access to the full `HttpResponse`, allowing access to response headers.
+   * To access only the response body, use `confirm()` instead.
+   *
+   * This method doesn't expect any request body.
+   */
+  confirm$Response(params: Confirm$Params, context?: HttpContext): Observable<StrictHttpResponse<void>> {
+    return confirm(this.http, this.rootUrl, params, context);
+  }
+
+  /**
+   * This method provides access only to the response body.
+   * To access the full response (for headers, for example), `confirm$Response()` instead.
+   *
+   * This method doesn't expect any request body.
+   */
+  confirm(params: Confirm$Params, context?: HttpContext): Observable<void> {
+    return this.confirm$Response(params, context).pipe(
+      map((r: StrictHttpResponse<void>): void => r.body)
+    );
+  }
+
+  /** Path part for operation `checkBusinessOwner()` */
+  static readonly CheckBusinessOwnerPath = '/auth/check-business-owner/{userId}';
+
+  /**
+   * This method provides access to the full `HttpResponse`, allowing access to response headers.
+   * To access only the response body, use `checkBusinessOwner()` instead.
+   *
+   * This method doesn't expect any request body.
+   */
+  checkBusinessOwner$Response(params: CheckBusinessOwner$Params, context?: HttpContext): Observable<StrictHttpResponse<boolean>> {
+    return checkBusinessOwner(this.http, this.rootUrl, params, context);
+  }
+
+  /**
+   * This method provides access only to the response body.
+   * To access the full response (for headers, for example), `checkBusinessOwner$Response()` instead.
+   *
+   * This method doesn't expect any request body.
+   */
+  checkBusinessOwner(params: CheckBusinessOwner$Params, context?: HttpContext): Observable<boolean> {
+    return this.checkBusinessOwner$Response(params, context).pipe(
       map((r: StrictHttpResponse<boolean>): boolean => r.body)
     );
   }
