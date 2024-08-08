@@ -52,7 +52,24 @@ public class StoreMapper {
                 .orderResponses(mapToOrderResponses(store.getOrders()))
                 .feedBackResponses(mapToFeedbackResponses(store.getFeedbacks()))
                 .build();
+    }
 
+    public StoreResponse toCreateStoreResponse(Store store){
+        return StoreResponse.builder()
+                .id(store.getId())
+                .storeName(store.getName())
+                .address(store.getAddress())
+                .phoneNumber(store.getPhoneNumber())
+                .email(store.getEmail())
+                .description(store.getDescription())
+                .openingHours(store.getOpeningHours())
+                .rating(store.getRating())
+                .isActive(store.isActive())
+                .deliveryAvailable(store.isDeliveryAvailable())
+                .websiteUrl(store.getWebsiteUrl())
+                .ownerId(store.getOwner().getId())
+                .logoUrl(store.getLogoUrl())
+                .build();
     }
 
     private List<OrderResponse> mapToOrderResponses(List<Order> orders) {
@@ -83,6 +100,7 @@ public class StoreMapper {
 
     private List<DrinksResponse> mapToDrinkResponses(List<Drink> drinks) {
         return drinks.stream().map(drink -> DrinksResponse.builder()
+                .id(drink.getId())
                 .drinkName(drink.getDrinksName())
                 .drinkDescription(drink.getDrinksDescription())
                 .price(drink.getPrice())
@@ -95,6 +113,7 @@ public class StoreMapper {
     private List<ProductResponse> mapToProductResponses(List<Product> products) {
         return products.stream().map(
                 product -> ProductResponse.builder()
+                        .id(product.getId())
                         .productName(product.getProductName())
                         .productDescription(product.getProductDescription())
                         .price(product.getPrice())
@@ -107,6 +126,7 @@ public class StoreMapper {
 
     public StoreResponse toPublicStoreResponse(Store store){
         return StoreResponse.builder()
+                .id(store.getId())
                 .storeName(store.getName())
                 .address(store.getAddress())
                 .phoneNumber(store.getPhoneNumber())
@@ -116,6 +136,10 @@ public class StoreMapper {
                 .rating(store.getRating())
                 .deliveryAvailable(store.isDeliveryAvailable())
                 .websiteUrl(store.getWebsiteUrl())
+                .productResponses(mapToProductResponses(store.getProducts()))
+                .drinksResponses(mapToDrinkResponses(store.getDrinks()))
+                .orderResponses(mapToOrderResponses(store.getOrders()))
+                .feedBackResponses(mapToFeedbackResponses(store.getFeedbacks()))
                 .build();
 
 
