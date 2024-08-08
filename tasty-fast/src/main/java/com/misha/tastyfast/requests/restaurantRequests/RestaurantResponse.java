@@ -3,7 +3,6 @@ import com.misha.tastyfast.feedback.req.FeedBackResponse;
 import com.misha.tastyfast.requests.dishesRequests.DishesResponse;
 import com.misha.tastyfast.requests.drinkRequests.DrinksResponse;
 import com.misha.tastyfast.requests.orderRequests.OrderResponse;
-import jakarta.mail.util.LineOutputStream;
 import lombok.*;
 
 import java.util.List;
@@ -30,7 +29,7 @@ public class RestaurantResponse {
     private Boolean deliveryAvailable;
     private String websiteUrl;
     private Integer ownerId;
-    private byte[] logoUrl;
+    private String logoUrl;
 
     private List<DishesResponse> dishesResponses;
     private List<DrinksResponse> drinksResponses;
