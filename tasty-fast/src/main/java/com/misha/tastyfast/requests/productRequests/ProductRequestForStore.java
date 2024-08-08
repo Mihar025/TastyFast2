@@ -16,5 +16,6 @@ public class ProductRequestForStore {
     private BigDecimal calories;
     private boolean inStock;
     private Integer storeId;
+    private String logo;
 
 }
