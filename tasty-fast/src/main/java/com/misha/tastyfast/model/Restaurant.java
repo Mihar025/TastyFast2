@@ -71,8 +71,9 @@ public class Restaurant extends BaseEntity {
     @Column(name = "website_url")
     private String websiteUrl;
 
-    @Column(name = "logo_url")
-    private byte[] logoUrl;
+
+    @Column(name = "logo")
+    private String logo;
 
     @OneToMany(mappedBy = "restaurant")
     private List<Feedback> feedbacks;
