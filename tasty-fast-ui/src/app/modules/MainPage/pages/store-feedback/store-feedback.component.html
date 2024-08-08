@@ -1,0 +1,37 @@
+<link href="https://fonts.googleapis.com/css2?family=Nunito:wght@300;400;600;700&display=swap" rel="stylesheet">
+<div class="container">
+  <h2>Store Feedbacks</h2>
+
+  <ng-container *ngIf="feedbacks">
+    <ng-container *ngIf="feedbacks.content && feedbacks.content.length > 0; else noFeedback">
+      <div *ngFor="let feedback of feedbacks.content" class="card mb-3">
+        <div class="card-body">
+          <h5 class="card-title">Rating: {{ feedback.note }}</h5>
+          <p class="card-text">{{ feedback.comment }}</p>
+          <p class="card-text"><small class="text-muted">Author: {{ feedback.ownFeedback ? 'Owner' : 'Customer' }}</small></p>
+          <button *ngIf="feedback.id" (click)="deleteFeedback(feedback.id)" class="btn btn-danger btn-sm">Delete</button>        </div>
+      </div>
+    </ng-container>
+  </ng-container>
+
+  <div class="card mb-4">
+    <div class="card-body">
+      <h5 class="card-title">Leave a feedback</h5>
+      <form (ngSubmit)="submitFeedbackForStore()">
+        <div class="mb-3">
+          <label for="note" class="form-label">Rating</label>
+          <input type="number" class="form-control" id="note" [(ngModel)]="newFeedback.note" name="note" min="1" max="5" required>
+        </div>
+        <div class="mb-3">
+          <label for="comment" class="form-label">Comment</label>
+          <textarea class="form-control" id="comment" [(ngModel)]="newFeedback.comment" name="comment" required></textarea>
+        </div>
+        <button type="submit" class="btn btn-primary">Submit feedback</button>
+      </form>
+    </div>
+  </div>
+
+  <ng-template #noFeedback>
+    <p>There are no feedbacks yet. Be the first one to write it!</p>
+  </ng-template>
+</div>
