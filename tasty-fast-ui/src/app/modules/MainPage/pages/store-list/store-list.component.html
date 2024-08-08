@@ -1,0 +1,46 @@
+<link href="https://fonts.googleapis.com/css2?family=Roboto:wght@300;400;500;700&display=swap" rel="stylesheet">
+<div class="container">
+  <h2>Stores</h2>
+
+  <!-- Сообщение об ошибке или успехе -->
+  <div *ngIf="message" [ngClass]="{'alert-success': level === 'success', 'alert-danger': level === 'error'}" class="alert" role="alert">
+    {{ message }}
+  </div>
+
+
+
+  <div class="restaurant-grid">
+    <div *ngFor="let store of storeResponse.content" class="store-card">
+      <div class="store-image">
+        <img [src]="getStoreImage(store)">
+
+      </div>
+      <div class="store-info">
+        <h3>{{ store.storeName }}</h3>
+        <p>{{ store.description }}</p>
+        <button (click)="displayStoreDetails(store)" class="btn btn-primary">View Details</button>      </div>
+    </div>
+  </div>
+
+  <!-- Пагинация -->
+  <nav *ngIf="pages.length > 1" aria-label="Restaurant pagination">
+    <ul class="pagination justify-content-center">
+      <li class="page-item" [class.disabled]="page === 0">
+        <a class="page-link" href="javascript:void(0)" (click)="goToFirstPage()">First</a>
+      </li>
+      <li class="page-item" [class.disabled]="page === 0">
+        <a class="page-link" href="javascript:void(0)" (click)="goToPreviousPage()">Previous</a>
+      </li>
+      <li *ngFor="let pageNum of pages" class="page-item" [class.active]="pageNum === page">
+        <a class="page-link" href="javascript:void(0)" (click)="gotToPage(pageNum)">{{ pageNum + 1 }}</a>
+      </li>
+      <li class="page-item" [class.disabled]="isLastPage">
+        <a class="page-link" href="javascript:void(0)" (click)="goToNextPage()">Next</a>
+      </li>
+      <li class="page-item" [class.disabled]="isLastPage">
+        <a class="page-link" href="javascript:void(0)" (click)="goToLastPage()">Last</a>
+      </li>
+    </ul>
+  </nav>
+</div>
+

@@ -1,0 +1,179 @@
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap');
+
+body {
+  font-family: 'Inter', sans-serif;
+  background: linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%);
+  min-height: 100vh;
+  padding: 2rem 0;
+}
+
+.container {
+  max-width: 600px;
+  margin: 0 auto;
+  background-color: rgba(255, 255, 255, 0.95);
+  border-radius: 20px;
+  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
+  padding: 2rem;
+}
+
+h2 {
+  color: #2c3e50;
+  font-weight: 700;
+  text-align: center;
+  margin-bottom: 2rem;
+  font-size: 2rem;
+  letter-spacing: 1px;
+}
+
+.form-group {
+  margin-bottom: 1.5rem;
+
+  label {
+    font-weight: 600;
+    color: #34495e;
+    margin-bottom: 0.5rem;
+    display: block;
+  }
+}
+
+.form-control {
+  border-radius: 10px;
+  border: 1px solid #bdc3c7;
+  padding: 0.75rem;
+  transition: all 0.3s ease;
+
+  &:focus {
+    box-shadow: 0 0 0 3px rgba(52, 152, 219, 0.25);
+    border-color: #3498db;
+  }
+}
+
+.btn {
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 1px;
+  transition: all 0.3s ease;
+  border-radius: 10px;
+  padding: 0.75rem 1.5rem;
+
+  &:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.15);
+  }
+}
+
+.btn-primary {
+  background-color: #3498db;
+  border-color: #3498db;
+
+  &:hover {
+    background-color: #2980b9;
+    border-color: #2980b9;
+  }
+}
+
+.btn-danger {
+  background-color: #e74c3c;
+  border-color: #e74c3c;
+
+  &:hover {
+    background-color: #c0392b;
+    border-color: #c0392b;
+  }
+}
+
+.alert {
+  border-radius: 10px;
+  padding: 1rem;
+  margin-top: 1.5rem;
+  animation: fadeIn 0.5s ease-out;
+}
+
+@keyframes fadeIn {
+  from { opacity: 0; }
+  to { opacity: 1; }
+}
+
+.spinner-border {
+  display: block;
+  margin: 1.5rem auto;
+}
+
+// Анимация для элементов формы
+@keyframes slideInFromLeft {
+  from {
+    opacity: 0;
+    transform: translateX(-20px);
+  }
+  to {
+    opacity: 1;
+    transform: translateX(0);
+  }
+}
+
+.form-group {
+  animation: slideInFromLeft 0.5s ease-out;
+  animation-fill-mode: both;
+}
+
+// Задержка для каждого элемента формы
+@for $i from 1 through 4 {
+  .form-group:nth-child(#{$i}) {
+    animation-delay: #{$i * 0.1}s;
+  }
+}
+
+// Медиа-запрос для мобильных устройств
+@media (max-width: 768px) {
+  .container {
+    padding: 1.5rem;
+  }
+
+  h2 {
+    font-size: 1.75rem;
+  }
+
+  .btn {
+    width: 100%;
+    margin-top: 0.5rem;
+  }
+}
+
+// Дополнительные стили из вашего изначального CSS
+.setting-item {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 15px 0;
+  border-bottom: 1px solid #e0e0e0;
+
+  &:last-child {
+    border-bottom: none;
+  }
+}
+
+.form-inline {
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+
+  .form-control {
+    flex: 1;
+    margin-right: 10px;
+    margin-bottom: 0.5rem;
+  }
+
+  .btn {
+    flex-shrink: 0;
+  }
+}
+
+.btn-link {
+  text-decoration: none;
+  color: #3498db;
+  transition: color 0.3s ease;
+
+  &:hover {
+    color: #2980b9;
+  }
+}

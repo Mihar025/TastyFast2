@@ -1,0 +1,159 @@
+@import url('https://fonts.googleapis.com/css2?family=Raleway:wght@300;400;500;600;700&display=swap');
+
+body {
+  font-family: 'Raleway', sans-serif;
+  background: linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%);
+  min-height: 100vh;
+  padding: 2rem 0;
+}
+
+.container {
+  max-width: 800px;
+  margin: 0 auto;
+}
+
+.card {
+  background-color: rgba(255, 255, 255, 0.95);
+  border-radius: 15px;
+  overflow: hidden;
+  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
+  transition: all 0.3s ease;
+
+  &:hover {
+    transform: translateY(-5px);
+    box-shadow: 0 15px 40px rgba(0, 0, 0, 0.15);
+  }
+}
+
+.card-header {
+  background: linear-gradient(135deg, #3498db, #2980b9);
+  color: white;
+  padding: 1.5rem;
+  font-weight: 600;
+
+  h2 {
+    margin: 0;
+    font-size: 1.8rem;
+    letter-spacing: 1px;
+  }
+}
+
+.card-body {
+  padding: 2rem;
+}
+
+.row {
+  margin-bottom: 1.5rem;
+}
+
+p {
+  margin-bottom: 1rem;
+  font-size: 1.1rem;
+  color: #34495e;
+
+  strong {
+    font-weight: 600;
+    color: #2c3e50;
+  }
+}
+
+h3 {
+  color: #2c3e50;
+  font-weight: 600;
+  margin-bottom: 1rem;
+  font-size: 1.5rem;
+}
+
+.list-group {
+  border-radius: 10px;
+  overflow: hidden;
+  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+}
+
+.list-group-item {
+  border: none;
+  padding: 1rem 1.5rem;
+  background-color: #f8f9fa;
+  transition: all 0.3s ease;
+
+  &:hover {
+    background-color: #e9ecef;
+    transform: translateX(5px);
+  }
+
+  &:not(:last-child) {
+    border-bottom: 1px solid #e0e0e0;
+  }
+}
+
+.alert {
+  border-radius: 10px;
+  padding: 1rem;
+  margin-top: 1.5rem;
+  animation: fadeIn 0.5s ease-out;
+}
+
+@keyframes fadeIn {
+  from { opacity: 0; }
+  to { opacity: 1; }
+}
+
+// Анимация для элементов профиля
+@keyframes slideInFromLeft {
+  from {
+    opacity: 0;
+    transform: translateX(-20px);
+  }
+  to {
+    opacity: 1;
+    transform: translateX(0);
+  }
+}
+
+.card-body > div, .card-body > h3, .list-group {
+  animation: slideInFromLeft 0.5s ease-out;
+  animation-fill-mode: both;
+}
+
+// Задержка для каждого элемента
+@for $i from 1 through 5 {
+  .card-body > *:nth-child(#{$i}) {
+    animation-delay: #{$i * 0.1}s;
+  }
+}
+
+// Медиа-запрос для мобильных устройств
+@media (max-width: 768px) {
+  .container {
+    padding: 1rem;
+  }
+
+  .card-header h2 {
+    font-size: 1.5rem;
+  }
+
+  .card-body {
+    padding: 1.5rem;
+  }
+
+  p, .list-group-item {
+    font-size: 1rem;
+  }
+}
+
+// Дополнительные стили
+.business-icon {
+  margin-right: 10px;
+  color: #3498db;
+}
+
+.profile-info {
+  display: flex;
+  align-items: center;
+  margin-bottom: 0.5rem;
+
+  .info-label {
+    min-width: 120px;
+    font-weight: 600;
+  }
+}

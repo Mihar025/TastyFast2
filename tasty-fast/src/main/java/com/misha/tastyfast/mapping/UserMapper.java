@@ -3,8 +3,10 @@ package com.misha.tastyfast.mapping;
 import com.misha.tastyfast.model.Restaurant;
 import com.misha.tastyfast.model.Store;
 import com.misha.tastyfast.model.User;
+import com.misha.tastyfast.requests.userRequests.UserIdResponse;
 import com.misha.tastyfast.requests.userRequests.UserRequest;
 import com.misha.tastyfast.requests.userRequests.UserResponse;
+import com.misha.tastyfast.requests.userSettingsRequests.*;
 import org.springframework.stereotype.Service;
 
 import java.util.ArrayList;
@@ -46,6 +48,42 @@ public class UserMapper {
                         .allBusinesses(allBusinesses)
                         .build();
             }
+
+            public UserIdResponse toUserId(User user){
+                return UserIdResponse.builder()
+                        .currentId(user.getId())
+                        .build();
+            }
+
+            public FirstNameRequest toFirstName(User user){
+                return FirstNameRequest.builder()
+                        .firstName(user.getFirstname())
+                        .build();
+            }
+
+            public LastNameRequest toLastName(User user){
+                return LastNameRequest.builder()
+                        .lastName(user.getLastname())
+                        .build();
+            }
+            public DateOfBirthRequest toDateOfBirth(User user){
+                return DateOfBirthRequest.builder()
+                        .dateOfBirth(user.getDateOfBirth())
+                        .build();
+            }
+            public EmailRequest toEmail(User user){
+                return EmailRequest.builder()
+                        .email(user.getEmail())
+                        .build();
+            }
+
+            public StreetRequest toStreet(User user){
+                return StreetRequest.builder()
+                        .streetRequest(user.getStreet())
+                        .build();
+            }
+
+
 
 
 }
