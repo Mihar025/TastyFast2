@@ -15,6 +15,7 @@ restaurants: RestaurantResponse [] = [];
 stores: StoreResponse [] = [];
 error: string[] = [];
 specialOffer: RestaurantResponse | null = null;
+  baseUrl = 'http://localhost:8088/api/v1';
 
     constructor(
       private restaurantService: RestaurantControllerService,
@@ -38,8 +39,6 @@ specialOffer: RestaurantResponse | null = null;
     });
   }
   loadSpecialOffer() {
-    // В реальном приложении вы бы получали специальное предложение с сервера
-    // Здесь мы просто возьмем первый ресторан из списка для демонстрации
     this.restaurantService.getAllRestaurants({ page: 0, size: 1 }).subscribe({
       next: (response) => {
         if (response.content && response.content.length > 0) {
@@ -49,6 +48,7 @@ specialOffer: RestaurantResponse | null = null;
       error: (error) => console.error('Error loading special offer', error)
     });
   }
+
 
 
 
@@ -75,4 +75,17 @@ specialOffer: RestaurantResponse | null = null;
     }
   }
 
+  getRestaurantImage(restaurant: RestaurantResponse): string {
+    if (restaurant.logoUrl) {
+      return `${this.baseUrl}/restaurants/logo/${restaurant.restaurantId}`;
+    }
+//    return `https://source.unsplash.com/300x200/?restaurant,interior,dining&sig=${restaurant.restaurantId}`;
+
+    return `https://picsum.photos/300/200?restaurant&sig=${restaurant.restaurantId}`;
+
+  }
+
+  getStoreImage(stores: StoreResponse): string {
+    return `https://picsum.photos/300/200?restaurant&sig=${stores.id}`;
+  }
 }
