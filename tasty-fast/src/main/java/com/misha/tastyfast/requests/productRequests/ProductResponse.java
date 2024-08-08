@@ -19,6 +19,7 @@ public class ProductResponse {
     private Integer storeId;
     private Integer ownerId;
     private double rating;
-
+    private String logo;
     private Integer quantity;
+
 }

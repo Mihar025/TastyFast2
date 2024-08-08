@@ -3,6 +3,7 @@ package com.misha.tastyfast.services;
 import com.misha.tastyfast.comon.ProductSpecification;
 import com.misha.tastyfast.mapping.ProductMapper;
 import com.misha.tastyfast.model.Product;
+import com.misha.tastyfast.model.Restaurant;
 import com.misha.tastyfast.model.User;
 import com.misha.tastyfast.repositories.ProductRepository;
 import com.misha.tastyfast.requests.pageResponse.PageResponse;
@@ -15,6 +16,7 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
+import org.springframework.security.access.AccessDeniedException;
 import org.springframework.security.core.Authentication;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
@@ -90,7 +92,24 @@ public class ProductService {
 
     }
 
+    public void uploadStoreLogo(MultipartFile file, Authentication authentication, Integer productId) {
+        Product product = productRepository.findById(productId)
+                .orElseThrow(() -> new EntityNotFoundException("Cannot find product with provided id: " + productId));
+        User user = ((User) authentication.getPrincipal());
 
+        if (!product.getOwner().getId().equals(user.getId())) {
+            throw new AccessDeniedException("You don't have permission to upload logo for this product");
+        }
+
+        String logoPath = fileStorageService.saveProductFile(file, product, user.getId());
+        if (logoPath == null) {
+            throw new RuntimeException("Failed to save restaurant logo");
+        }if (logoPath.startsWith("./")) {
+            logoPath = logoPath.substring(2);
+        }
+        product.setLogo(logoPath);
+        productRepository.save(product);
+    }
 
 
 }
