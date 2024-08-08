@@ -18,6 +18,7 @@ public class ProductMapper {
                 .calories(request.calories())
                 .inStock(request.inStock())
                 .quantity(request.quantity())
+                .logo(request.logo())
                 .build();
     }
 
@@ -34,6 +35,7 @@ public class ProductMapper {
                     .rating(product.getRate())
                     .storeId(product.getStore().getId())
                     .quantity(product.getQuantity())
+                    .logo(product.getLogo())
                     .build();
     }
 
