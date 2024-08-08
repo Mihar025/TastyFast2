@@ -38,6 +38,7 @@ public class Product extends BaseEntity {
     private boolean inStock;
      private Integer quantity;
 
+     private String logo;
 
     @ManyToOne
     @JoinColumn(name = "owner_id")
