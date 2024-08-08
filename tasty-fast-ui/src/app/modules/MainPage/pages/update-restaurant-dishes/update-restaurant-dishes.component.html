@@ -1,0 +1,26 @@
+<div class="container">
+  <h2>Update Dishes</h2>
+  <form [formGroup]="dishesForm" (ngSubmit)="onSubmit()" class="dishes-form">
+    <div class="form-group">
+      <label for="dishesName">Dishes Name</label>
+      <input type="text" id="dishesName" formControlName="dishes_name" class="form-control">
+    </div>
+
+    <div class="form-group">
+      <label for="dishesDescription">Dishes Description</label>
+      <input type="text" id="dishesDescription" formControlName="dishes_description" class="form-control">
+    </div>
+
+    <div class="form-group">
+      <label for="price">Price</label>
+      <input type="number" id="price" formControlName="price" class="form-control">
+    </div>
+
+    <div class="form-group">
+      <label for="calories">Calories</label>
+      <input type="number" id="calories" formControlName="calories" class="form-control">
+    </div>
+
+    <button type="submit" class="btn btn-primary" [disabled]="!dishesForm.valid">Update Dish</button>
+  </form>
+</div>

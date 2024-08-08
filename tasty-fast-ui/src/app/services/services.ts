@@ -1,0 +1,13 @@
+export { StoreControllerService } from './services/store-controller.service';
+export { RestaurantControllerService } from './services/restaurant-controller.service';
+export { CartControllerService } from './services/cart-controller.service';
+export { ProductControllerService } from './services/product-controller.service';
+export { OrderControllerService } from './services/order-controller.service';
+export { NotificationControllerService } from './services/notification-controller.service';
+export { FeedbackService } from './services/feedback.service';
+export { FavoriteControllerService } from './services/favorite-controller.service';
+export { DrinkControllerService } from './services/drink-controller.service';
+export { DishesControllerService } from './services/dishes-controller.service';
+export { AuthenticationService } from './services/authentication.service';
+export { UserControllerService } from './services/user-controller.service';
+export { FileControllerService } from './services/file-controller.service';
