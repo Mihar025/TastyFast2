@@ -1,0 +1,199 @@
+@import url('https://fonts.googleapis.com/css2?family=Nunito:wght@300;400;600;700&display=swap');
+
+body {
+  font-family: 'Nunito', sans-serif;
+  background: linear-gradient(120deg, #84fab0 0%, #8fd3f4 100%);
+  min-height: 100vh;
+  padding: 2rem 0;
+}
+
+.container {
+  max-width: 800px;
+  margin: 0 auto;
+  background-color: rgba(255, 255, 255, 0.95);
+  border-radius: 20px;
+  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
+  padding: 2rem;
+}
+
+h2 {
+  color: #2c3e50;
+  font-weight: 700;
+  text-align: center;
+  margin-bottom: 2rem;
+  font-size: 2.5rem;
+  letter-spacing: 1px;
+}
+
+.card {
+  border: none;
+  border-radius: 15px;
+  overflow: hidden;
+  transition: all 0.3s ease;
+  box-shadow: 0 5px 15px rgba(0, 0, 0, 0.08);
+  margin-bottom: 1.5rem;
+
+  &:hover {
+    transform: translateY(-5px);
+    box-shadow: 0 8px 25px rgba(0, 0, 0, 0.1);
+  }
+}
+
+.card-body {
+  padding: 1.5rem;
+}
+
+.card-title {
+  font-weight: 600;
+  color: #34495e;
+  margin-bottom: 1rem;
+}
+
+.card-text {
+  color: #7f8c8d;
+  font-size: 1rem;
+  line-height: 1.6;
+}
+
+.text-muted {
+  font-style: italic;
+}
+
+.btn {
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 1px;
+  transition: all 0.3s ease;
+
+  &:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.15);
+  }
+}
+
+.btn-danger {
+  background-color: #e74c3c;
+  border-color: #e74c3c;
+
+  &:hover {
+    background-color: #c0392b;
+    border-color: #c0392b;
+  }
+}
+
+.btn-primary {
+  background-color: #3498db;
+  border-color: #3498db;
+
+  &:hover {
+    background-color: #2980b9;
+    border-color: #2980b9;
+  }
+}
+
+form {
+  .form-label {
+    font-weight: 600;
+    color: #34495e;
+  }
+
+  .form-control {
+    border-radius: 10px;
+    border: 1px solid #bdc3c7;
+    padding: 0.75rem;
+    transition: all 0.3s ease;
+
+    &:focus {
+      box-shadow: 0 0 0 3px rgba(52, 152, 219, 0.25);
+      border-color: #3498db;
+    }
+  }
+}
+
+// Анимация появления карточек
+@keyframes fadeInUp {
+  from {
+    opacity: 0;
+    transform: translate3d(0, 40px, 0);
+  }
+  to {
+    opacity: 1;
+    transform: translate3d(0, 0, 0);
+  }
+}
+
+.card {
+  animation: fadeInUp 0.5s ease-out;
+  animation-fill-mode: both;
+}
+
+// Задержка для каждой карточки
+@for $i from 1 through 10 {
+  .card:nth-child(#{$i}) {
+    animation-delay: #{$i * 0.1}s;
+  }
+}
+
+// Стили для сообщения об отсутствии отзывов
+ng-template {
+  p {
+    text-align: center;
+    font-size: 1.2rem;
+    color: #7f8c8d;
+    margin-top: 2rem;
+    animation: fadeIn 0.5s ease-out;
+  }
+}
+
+@keyframes fadeIn {
+  from { opacity: 0; }
+  to { opacity: 1; }
+}
+
+// Медиа-запрос для мобильных устройств
+@media (max-width: 768px) {
+  .container {
+    padding: 1rem;
+  }
+
+  h2 {
+    font-size: 2rem;
+  }
+
+  .card {
+    margin-bottom: 1rem;
+  }
+}
+
+// Стили для рейтинга
+.rating {
+  display: flex;
+  align-items: center;
+  margin-bottom: 0.5rem;
+
+  .stars {
+    display: inline-block;
+    font-size: 1.2rem;
+    color: #f1c40f;
+    margin-left: 0.5rem;
+  }
+}
+
+// Анимация для кнопки отправки формы
+@keyframes pulse {
+  0% {
+    transform: scale(1);
+  }
+  50% {
+    transform: scale(1.05);
+  }
+  100% {
+    transform: scale(1);
+  }
+}
+
+.btn-primary[type="submit"] {
+  &:hover {
+    animation: pulse 0.5s infinite;
+  }
+}

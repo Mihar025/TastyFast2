@@ -26,8 +26,7 @@ public class StoreResponse {
     private Boolean deliveryAvailable;
     private String websiteUrl;
     private Integer ownerId;
-    private byte[] logoUrl;
-
+    private String logoUrl;
     private List<ProductResponse> productResponses;
     private List<DrinksResponse> drinksResponses;
     private List<FeedBackResponse> feedBackResponses;

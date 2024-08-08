@@ -35,7 +35,7 @@ import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.core.Authentication;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-
+import org.springframework.web.multipart.MultipartFile;
 import java.time.LocalDateTime;
 import java.util.List;
 import java.util.stream.Collectors;
@@ -53,47 +53,42 @@ private final DishesMapper dishesMapper;
 private final DrinkMapper drinkMapper;
 private final DrinksTransactionHistoryRepository drinksTransactionHistoryRepository;
 private final DishesTransactionRepository dishesTransactionRepository;
+private final FileStorageService fileStorageService;
 
-    @PreAuthorize("hasRole('BUSINESS_OWNER')") //updated
-    public Restaurant createNewRestaurant(RestaurantRequest request, Authentication authentication) {
+
+
+  //  @PreAuthorize("hasRole('BUSINESS_OWNER')") //updated
+    public RestaurantResponse createNewRestaurant(RestaurantRequest request, Integer ownerId,  Authentication authentication) {
         User user = (User) authentication.getPrincipal();
+        if(!user.getId().equals(ownerId)){
+            throw new AccessDeniedException("You dont have an access to create restaurant");
+        }
         Restaurant restaurant = restaurantMapper.toRestaurant(request, user);
         restaurant = restaurantRepository.save(restaurant);
-
-        RestaurantTransactionHistory history = RestaurantTransactionHistory.builder()
-                .restaurant(restaurant)
-                .user(user)
-                .transactionType("CREATED")
-                .transactionDate(LocalDateTime.now())
-                .details("Creating new restaurant")
-                .createdBy(user.getId())
-                .createdDate(LocalDateTime.now())
-                .lastModifiedDate(LocalDateTime.now())
-                .build();
-
-        log.debug("Saving transaction history: {}", history);
-        restaurantTransactionHistoryRepository.save(history);
-        log.debug("Saved transaction history: {}", history);
-
-        return restaurant;
+        return restaurantMapper.toCreateRestaurantResponse(restaurant);
     }
-    @Cacheable(value = "restaurant_byId", key = "#restaurantId") //updated
+    // @Cacheable(value = "restaurant_byId", key = "#restaurantId")
     public RestaurantResponse findRestaurantById (Integer restaurantId, Authentication connectedUser){
         User user = ((User) connectedUser.getPrincipal());
         Restaurant restaurant = restaurantRepository.findById(restaurantId)
-                .orElseThrow(() -> new EntityNotFoundException("RestaurantController with provided ID::" + restaurantId + " wasn't founded"));
+                .orElseThrow(() -> new EntityNotFoundException("Restaurant with provided ID::" + restaurantId + " wasn't found"));
+
+        log.info("User {} is trying to access restaurant {}", user.getId(), restaurantId);
+        log.info("User roles: {}", user.getRoles());
 
         boolean isOwner = restaurant.getOwner().getId().equals(user.getId());
         boolean isBusinessOwner = user.getRoles().stream()
                 .anyMatch(role -> role.getName().equals("BUSINESS_OWNER"));
+
+        log.info("Is owner: {}, Is business owner: {}", isOwner, isBusinessOwner);
+
         if(isOwner || isBusinessOwner){
-            return  restaurantMapper.toRestaurantResponse(restaurant);
-        }
-        else {
+            return restaurantMapper.toRestaurantResponse(restaurant);
+        } else {
             return restaurantMapper.toPublicRestaurantResponse(restaurant);
         }
     }
-    @Cacheable(value = "restaurant_allDish", key = "#restaurantId") //updated
+    //  @Cacheable(value = "restaurant_allDish", key = "#restaurantId") //updated
     public PageResponse<DishesResponse> findAllDishesInRestaurant(int page, int size, Integer restaurantId) {
         log.info("Fetching dishes for restaurant with ID: {}", restaurantId);
 
@@ -116,7 +111,7 @@ private final DishesTransactionRepository dishesTransactionRepository;
                 dishes.isLast()
         );
     }
-    @Cacheable(value = "restaurant_allDrinks", key = "#restaurantId + '_' + #page + '_' + #size") //updated
+    // @Cacheable(value = "restaurant_allDrinks", key = "#restaurantId + '_' + #page + '_' + #size") //updated
     public PageResponse<DrinksResponse> findAllDrinksInRestaurant(int page, int size, Integer restaurantId) {
         log.info("Fetching drinks for restaurant with ID: {}", restaurantId);
         Pageable pageable = PageRequest.of(page, size, Sort.by("createdDate").descending());
@@ -137,7 +132,7 @@ private final DishesTransactionRepository dishesTransactionRepository;
     }
 
     @Transactional(readOnly = true)
-    @Cacheable(value = "restaurant_drink_byId", key = "#restaurantId + '_' + #drinkId") // updated
+    // @Cacheable(value = "restaurant_drink_byId", key = "#restaurantId + '_' + #drinkId") // updated
     public DrinksResponse findDrinkByIdInRestaurant(Integer drinkId, Integer restaurantId) {
 
         Drink drink = drinkRepository.findByIdAndRestaurantId(drinkId, restaurantId)
@@ -147,7 +142,7 @@ private final DishesTransactionRepository dishesTransactionRepository;
     }
 
     @Transactional(readOnly = true)
-    @Cacheable(value = "restaurant_dish_byId", key = "#restaurantId + '_' + #dishId") //updated
+    // @Cacheable(value = "restaurant_dish_byId", key = "#restaurantId + '_' + #dishId") //updated
     public DishesResponse findDishByIdInRestaurant(Integer dishId, Integer restaurantId) {
 
         Dishes dishes = dishesRepository.findByIdAndRestaurantId(dishId, restaurantId)
@@ -155,7 +150,7 @@ private final DishesTransactionRepository dishesTransactionRepository;
         return dishesMapper.toDishesResponse(dishes);
 
     }
-    @Cacheable(value = "restaurant_allRestaurants", key = "#page + '_' + #size + '_' + #connectedUser") //updated
+    //@Cacheable(value = "restaurant_allRestaurants", key = "#page + '_' + #size + '_' + #connectedUser") //updated
     public PageResponse<RestaurantResponse> findAllRestaurants(int page, int size, Authentication connectedUser){
         User user = ((User) connectedUser.getPrincipal());
         boolean isBusinessOwner = user.getRoles().stream()
@@ -186,7 +181,33 @@ private final DishesTransactionRepository dishesTransactionRepository;
           restaurants.isLast()
         );
     }
-    @Cacheable(value = "restaurant_allRestaurantsNoDelivery", key = "#page + '_' + #size + '_' + #connectedUser")
+
+
+    public PageResponse<RestaurantResponse> findAllRestaurantsBusinessOwner(int page, int size,Integer ownerId ,Authentication connectedUser){
+        User user = ((User) connectedUser.getPrincipal());
+       if(!user.getId().equals(ownerId)){
+           throw new AccessDeniedException("You are not allowed to access this resource");
+       }
+        Pageable pageable = PageRequest.of(page, size, Sort.by("createdDate").descending());
+
+        Page <Restaurant> restaurants = restaurantRepository.findAllDisplayedRestaurantsByOwner(pageable, ownerId);
+
+        List<RestaurantResponse> restaurantResponses = restaurants.map
+                        (restaurantMapper::toRestaurantResponse)
+                .stream().collect(Collectors.toList());
+
+        System.out.println("Restaurants had been received: " + restaurantResponses.size());
+        return new PageResponse<>(
+                restaurantResponses,
+                restaurants.getNumber(),
+                restaurants.getSize(),
+                restaurants.getTotalElements(),
+                restaurants.getTotalPages(),
+                restaurants.isFirst(),
+                restaurants.isLast()
+        );
+    }
+    //@Cacheable(value = "restaurant_allRestaurantsNoDelivery", key = "#page + '_' + #size + '_' + #connectedUser")
     public PageResponse<RestaurantResponse> findAllRestaurantsWithoutDelivery(int page, int size, Authentication connectedUser){
         User user = ((User) connectedUser.getPrincipal());
         var Id = user.getId();
@@ -209,9 +230,9 @@ private final DishesTransactionRepository dishesTransactionRepository;
     }
 
 
-
-   @PreAuthorize("hasRole('BUSINESS_OWNER')")
-    @Cacheable(value = "restaurant:drinks_update", key = "#id + '_' + #updateRequest + '_' + #authentication") //updated
+/*
+    @PreAuthorize("hasRole('BUSINESS_OWNER')")
+  //  @Cacheable(value = "restaurant:drinks_update", key = "#id + '_' + #updateRequest + '_' + #authentication") //updated
     public RestaurantResponse updateRestaurant(Integer id, RestaurantRequest updateRequest, Authentication authentication) {
         User user = (User) authentication.getPrincipal();
         Restaurant existingRestaurant = restaurantRepository.findById(id)
@@ -231,16 +252,57 @@ private final DishesTransactionRepository dishesTransactionRepository;
         existingRestaurant.setSeatingCapacity(updateRequest.getSeatingCapacity());
         existingRestaurant.setDeliveryAvailable(updateRequest.isDeliveryAvailable());
         existingRestaurant.setWebsiteUrl(updateRequest.getWebsiteUrl());
-         existingRestaurant.setLogoUrl(updateRequest.getLogoUrl());
         Restaurant updatedRestaurant = restaurantRepository.save(existingRestaurant);
 
         return restaurantMapper.toRestaurantResponse(updatedRestaurant);
     }
 
+ */
 
-    @PreAuthorize("hasRole('BUSINESS_OWNER')")
+   // @PreAuthorize("hasRole('BUSINESS_OWNER')")
+    public RestaurantResponse updateRestaurant(Integer id, RestaurantRequest updateRequest, Authentication authentication) {
+        log.info("Attempting to update restaurant with id: {}", id);
+        User user = (User) authentication.getPrincipal();
+        log.info("User attempting update: {}", user.getUsername());
+
+        Restaurant existingRestaurant = restaurantRepository.findById(id)
+                .orElseThrow(() -> {
+                    log.error("Restaurant not found with id: {}", id);
+                    return new EntityNotFoundException("Cannot find restaurant with provided restaurantId: " + id);
+                });
+
+        if (!existingRestaurant.getOwner().getId().equals(user.getId())) {
+            log.warn("Access denied for user {} trying to update restaurant {}", user.getId(), id);
+            throw new AccessDeniedException("You don't have permission to update this restaurant");
+        }
+        try {
+            updateRestaurantFields(existingRestaurant, updateRequest);
+            Restaurant updatedRestaurant = restaurantRepository.save(existingRestaurant);
+            log.info("Restaurant updated successfully: {}", updatedRestaurant.getId());
+            return restaurantMapper.toRestaurantResponse(updatedRestaurant);
+        } catch (Exception e) {
+            log.error("Error updating restaurant: {}", e.getMessage(), e);
+            throw new RuntimeException("Error updating restaurant", e);
+        }
+    }
+
+    private void updateRestaurantFields(Restaurant existingRestaurant, RestaurantRequest updateRequest) {
+        existingRestaurant.setName(updateRequest.getRestaurantName());
+        existingRestaurant.setAddress(updateRequest.getAddress());
+        existingRestaurant.setPhoneNumber(updateRequest.getPhoneNumber());
+        existingRestaurant.setEmail(updateRequest.getEmail());
+        existingRestaurant.setDescription(updateRequest.getDescription());
+        existingRestaurant.setOpeningHours(updateRequest.getOpeningHours());
+        existingRestaurant.setCuisineType(updateRequest.getCuisineType());
+        existingRestaurant.setSeatingCapacity(updateRequest.getSeatingCapacity());
+        existingRestaurant.setDeliveryAvailable(updateRequest.isDeliveryAvailable());
+        existingRestaurant.setWebsiteUrl(updateRequest.getWebsiteUrl());
+    }
+
+
+    //@PreAuthorize("hasRole('BUSINESS_OWNER')")
     @Transactional
-    @CacheEvict(value = "restaurant_delete" , key = "#id + '_' + #connectedUser")
+   // @CacheEvict(value = "restaurant_delete" , key = "#id + '_' + #connectedUser")
     public void deleteRestaurant(Integer id,  Authentication connectedUser){
         User user = ((User) connectedUser.getPrincipal());
         Restaurant existingRest = restaurantRepository.findById(id)
@@ -250,8 +312,12 @@ private final DishesTransactionRepository dishesTransactionRepository;
         }
         RestaurantTransactionHistory transactionHistory = RestaurantTransactionHistory
                 .builder()
-             //   .restaurant(existingRest)
+               .restaurant(existingRest)
                 .user(user)
+                .createdBy(user.getId())
+                .lastModifiedBy(user.getId())
+                .lastModifiedDate(LocalDateTime.now())
+                .createdDate(LocalDateTime.now())
                 .transactionType("DELETE")
                 .transactionDate(LocalDateTime.now())
                 .details("RestaurantController deleting")
@@ -261,9 +327,9 @@ private final DishesTransactionRepository dishesTransactionRepository;
     }
 
 
-    @PreAuthorize("hasRole('BUSINESS_OWNER')")
+
     @Transactional
-    @Cacheable(value = "restaurant_allDish", key = "#restaurantId + '_' + #request + '_' + #authentication")
+
     public DishesResponse addDishesToRestaurant (Integer restaurantId, DishesRequest request, Authentication authentication) throws InternalServerErrorException {
         User user = ((User) authentication.getPrincipal());
         Restaurant existingRest = restaurantRepository.findById(restaurantId)
@@ -282,9 +348,9 @@ private final DishesTransactionRepository dishesTransactionRepository;
 
 
 
-    @PreAuthorize("hasRole('BUSINESS_OWNER')")
+
     @Transactional
-    @Cacheable(value = "restaurant_allDrinks", key = "#restaurantId + '_' + #request + '_' + #authentication")
+    //@Cacheable(value = "restaurant_allDrinks", key = "#restaurantId + '_' + #request + '_' + #authentication")
     public DrinksResponse addDrinkToTheRestaurant(Integer restaurantId, DrinkRequest request, Authentication authentication){
         User user = ((User) authentication.getPrincipal());
         Restaurant existingRest = restaurantRepository.findById(restaurantId)
@@ -306,9 +372,9 @@ private final DishesTransactionRepository dishesTransactionRepository;
 
 
 
-    @PreAuthorize("hasRole('BUSINESS_OWNER')")
+   // @PreAuthorize("hasRole('BUSINESS_OWNER')")
     @Transactional
-    @CachePut(value = "restaurant_drinks_update", key = "#restaurantId + '_' + #drinkId + '_' + #request")
+   // @CachePut(value = "restaurant_drinks_update", key = "#restaurantId + '_' + #drinkId + '_' + #request")
     public DrinksResponse updateDrinkInRestaurant(Integer restaurantId, Integer drinkId, DrinkRequest request, Authentication connectedUser) throws BadRequestException, InternalServerErrorException {
         User user = (User) connectedUser.getPrincipal();
         Restaurant existingRestaurant = restaurantRepository.findById(restaurantId)
@@ -325,7 +391,6 @@ private final DishesTransactionRepository dishesTransactionRepository;
         try {
             updateDrinkProperties(existingDrink, request);
             Drink updatedDrink = drinkRepository.save(existingDrink);
-            createTransactionHistory(updatedDrink, existingRestaurant, user);
             log.info("Drink with restaurantId {} in restaurant {} successfully updated", drinkId, restaurantId);
             return drinkMapper.toDrinkResponse(updatedDrink);
         } catch (IllegalArgumentException e) {
@@ -336,9 +401,9 @@ private final DishesTransactionRepository dishesTransactionRepository;
             throw new InternalServerErrorException("An error occurred while updating the drink: " + e.getMessage());
         }
     }
-    @PreAuthorize("hasRole('BUSINESS_OWNER')")
+   // @PreAuthorize("hasRole('BUSINESS_OWNER')")
     @Transactional
-    @Cacheable(value = "restaurant_dish_update", key = "#restaurantId + '_' + #dishId + '_' + #request")
+
     public DishesResponse updateDishInRestaurant(Integer restaurantId, Integer dishId, DishesRequest request, Authentication connectedUser) throws BadRequestException, InternalServerErrorException {
         User user = (User) connectedUser.getPrincipal();
         Restaurant existingRestaurant = restaurantRepository.findById(restaurantId)
@@ -355,7 +420,6 @@ private final DishesTransactionRepository dishesTransactionRepository;
         try {
             updateDishProperties(existingDish, request);
             Dishes updatedDish = dishesRepository.save(existingDish);
-            createTransactionHistoryForDishes(updatedDish, existingRestaurant, user);
             log.info("Dish with restaurantId {} in restaurant {} successfully updated", dishId, restaurantId);
             return dishesMapper.toDishesResponse(updatedDish);
         } catch (IllegalArgumentException e) {
@@ -366,7 +430,7 @@ private final DishesTransactionRepository dishesTransactionRepository;
             throw new InternalServerErrorException("An error occurred while updating the drink: " + e.getMessage());
         }
     }
-    @PreAuthorize("hasRole('BUSINESS_OWNER')")
+    //@PreAuthorize("hasRole('BUSINESS_OWNER')")
     @Transactional
   //  @CacheEvict(value = "restaurant_delete", key = "#dishesId + '_' + restaurantId + '_' + #connectedUser")
     public void deleteDishInsideRestaurant(Integer dishesId, Integer restaurantId, Authentication connectedUser) throws InternalServerErrorException {
@@ -374,7 +438,7 @@ private final DishesTransactionRepository dishesTransactionRepository;
         Restaurant existingRestaurant = restaurantRepository.findById(restaurantId)
                 .orElseThrow(() -> new EntityNotFoundException("Cannot find restaurant with provided restaurantId: " + restaurantId));
         if (!existingRestaurant.getOwner().getId().equals(user.getId())) {
-            log.warn("User {} does not have permission to update dish in restaurant {}", user.getId(), restaurantId);
+            log.warn("User {} does not have permission to delete dish in restaurant {}", user.getId(), restaurantId);
             throw new AccessDeniedException("You don't have permission to delete this dish in the restaurant");
         }
         Dishes deleteDish =  dishesRepository.findByIdAndRestaurantId(dishesId, restaurantId)
@@ -390,7 +454,7 @@ private final DishesTransactionRepository dishesTransactionRepository;
               throw new InternalServerErrorException("An error occurred while updating the drink: " + e.getMessage());
           }
     }
-    @PreAuthorize("hasRole('BUSINESS_OWNER')")
+  //  @PreAuthorize("hasRole('BUSINESS_OWNER')")
     @Transactional
     //  @CacheEvict(value = "restaurant_delete", key = "#dishesId + '_' + restaurantId + '_' + #connectedUser")
     public void deleteDrinkInsideRestaurant(Integer drinkId, Integer restaurantId, Authentication connectedUser) throws InternalServerErrorException {
@@ -398,11 +462,11 @@ private final DishesTransactionRepository dishesTransactionRepository;
         Restaurant existingRestaurant = restaurantRepository.findById(restaurantId)
                 .orElseThrow(() -> new EntityNotFoundException("Cannot find restaurant with provided restaurantId: " + restaurantId));
         if (!existingRestaurant.getOwner().getId().equals(user.getId())) {
-            log.warn("User {} does not have permission to update dish in restaurant {}", user.getId(), restaurantId);
+            log.warn("User {} does not have permission to delete drink in restaurant {}", user.getId(), restaurantId);
             throw new AccessDeniedException("You don't have permission to delete this dish in the restaurant");
         }
-        Drink deleteDrink =  drinkRepository.findByIdAndRestaurantId(drinkId, restaurantId)
-                .orElseThrow(() -> new EntityNotFoundException("Cannot find dish with provided restaurantId: " + drinkId));
+        Drink deleteDrink = drinkRepository.findByIdAndRestaurantId(drinkId, restaurantId)
+                .orElseThrow(() -> new EntityNotFoundException("Cannot find drink with provided restaurantId: " + drinkId));
 
         try{
             deletingTransactionHistoryForDrinks(deleteDrink, existingRestaurant, user);
@@ -525,6 +589,10 @@ private final DishesTransactionRepository dishesTransactionRepository;
         updateDrinkRequest(drink, request);
         drink.setRestaurant(restaurant);
         drink.setOwner(user);
+        drink.setCreatedBy(user.getId());
+        drink.setCreatedDate(LocalDateTime.now());
+        drink.setLastModifiedBy(user.getId());
+        drink.setLastModifiedDate(LocalDateTime.now());
         return drink;
     }
     public void updateDrinkRequest(Drink drink, DrinkRequest drinkRequest){
@@ -535,12 +603,13 @@ private final DishesTransactionRepository dishesTransactionRepository;
         drink.setInStock(drinkRequest.inStock());
         drink.setCategory(drink.getCategory());
         drink.setAlcohol(drinkRequest.isAlcohol());
+
     }
 
 
     // i want to provide for entity, separate settings for change!
     @PreAuthorize("hasRole('BUSINESS_OWNER')")
-    @Cacheable(value = "restaurants", key = "#restaurantId")
+  //  @Cacheable(value = "restaurants", key = "#restaurantId")
     public RestaurantResponse showAllRestaurantInformation(Integer restaurantId, Authentication connectedUser) {
         User currentUser = ((User) connectedUser.getPrincipal());
         if (!currentUser.getId().equals(restaurantId)) {
@@ -662,29 +731,22 @@ private final DishesTransactionRepository dishesTransactionRepository;
     }
 
 
+    public void uploadRestaurantLogo(MultipartFile file, Authentication authentication, Integer restaurantId) {
+        Restaurant restaurant = restaurantRepository.findById(restaurantId)
+                .orElseThrow(() -> new EntityNotFoundException("Cannot find Restaurant with provided id: " + restaurantId));
+        User user = ((User) authentication.getPrincipal());
 
+        if (!restaurant.getOwner().getId().equals(user.getId())) {
+            throw new AccessDeniedException("You don't have permission to upload logo for this restaurant");
+        }
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
+        String logoPath = fileStorageService.saveRestaurantFile(file, restaurant, user.getId());
+        if (logoPath == null) {
+            throw new RuntimeException("Failed to save restaurant logo");
+        }if (logoPath.startsWith("./")) {
+            logoPath = logoPath.substring(2);
+        }
+        restaurant.setLogo(logoPath);
+        restaurantRepository.save(restaurant);
+    }
 }

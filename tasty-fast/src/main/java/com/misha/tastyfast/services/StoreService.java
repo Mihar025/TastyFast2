@@ -4,10 +4,7 @@ import com.misha.tastyfast.exception.InternalServerErrorException;
 import com.misha.tastyfast.mapping.DrinkMapper;
 import com.misha.tastyfast.mapping.ProductMapper;
 import com.misha.tastyfast.mapping.StoreMapper;
-import com.misha.tastyfast.model.Drink;
-import com.misha.tastyfast.model.Product;
-import com.misha.tastyfast.model.Store;
-import com.misha.tastyfast.model.User;
+import com.misha.tastyfast.model.*;
 import com.misha.tastyfast.repositories.DrinkRepository;
 import com.misha.tastyfast.repositories.ProductRepository;
 import com.misha.tastyfast.repositories.StoreRepository;
@@ -36,6 +33,7 @@ import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.core.Authentication;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.web.multipart.MultipartFile;
 
 import java.time.LocalDateTime;
 import java.util.List;
@@ -68,24 +66,17 @@ public class StoreService {
     private final DrinksTransactionHistoryRepository drinksTransactionHistoryRepository;
     private final ProductTransactionHistoryRepository productTransactionHistoryRepository;
     private final UserRepository userRepository;
+    private final FileStorageService fileStorageService;
 
-    @PreAuthorize("hasRole('BUSINESS_OWNER')") //updated
-    public Store createNewStore(StoreRequest request, Authentication connectedUser){
+    //@PreAuthorize("hasRole('BUSINESS_OWNER')") //updated
+    public StoreResponse createNewStore(StoreRequest request,Integer ownerId, Authentication connectedUser){
         User user = ((User) connectedUser.getPrincipal());
+        if(!user.getId().equals(ownerId)){
+            throw new AccessDeniedException("Access denied");
+        }
         Store store = storeMapper.toStore(request, user);
-        store.setOwner(user);
-        store.setActive(true);
-        Store savedStore = storeRepository.save(store);
-        StoreTransactionHistory storeTransactionHistory = StoreTransactionHistory
-                .builder()
-                .store(savedStore)
-                .user(user)
-                .transactionType("CREATED")
-                .transactionDate(LocalDateTime.now())
-                .details("RestaurantController was successfully created!")
-                .build();
-        storeTransactionHistoryRepository.save(storeTransactionHistory);
-        return savedStore;
+        store = storeRepository.save(store);
+        return storeMapper.toCreateStoreResponse(store);
     }
     @Cacheable(value = "store_byId", key ="#storeId + '_' + #connectedUser")
     public StoreResponse findStoreById (Integer storeId, Authentication connectedUser){
@@ -187,6 +178,32 @@ public class StoreService {
         );
     }
 
+
+    public PageResponse<StoreResponse> findAllStoresByBusinessOwner(int page, int size,Integer ownerId, Authentication connectedUser){
+        User user = ((User) connectedUser.getPrincipal());
+        if(!user.getId().equals(ownerId)){
+            throw new AccessDeniedException("You are not allowed to access this resource");
+        }
+
+        Pageable pageable = PageRequest.of(page, size, Sort.by("createdDate").descending());
+
+
+        Page <Store> store = storeRepository.findAllCreatedStoresByBusinessOwner(pageable, ownerId);
+
+        List<StoreResponse> storeResponses = store.map(storeMapper::toStoreResponse).stream().toList();
+
+        System.out.println("Stores had been received: " + storeResponses.size());
+        return new PageResponse<>(
+                storeResponses,
+                store.getNumber(),
+                store.getSize(),
+                store.getTotalElements(),
+                store.getTotalPages(),
+                store.isFirst(),
+                store.isLast()
+        );
+    }
+
     @Cacheable(value = "store_allStoresWithoutDelivery")
     public PageResponse<StoreResponse> findAllStoresWithoutDelivery(int page, int size, Authentication connectedUser){
         User user = ((User) connectedUser.getPrincipal());
@@ -208,9 +225,9 @@ public class StoreService {
                 stores.isLast()
         );
     }
-    @PreAuthorize("hasRole('BUSINESS_OWNER')")
+   // @PreAuthorize("hasRole('BUSINESS_OWNER')")
     @CachePut(value = "store_update", key = "#storeId")
-    public Store updateStore(Integer storeId, StoreRequest updateRequest, Authentication authentication) {
+    public StoreResponse updateStore(Integer storeId, StoreRequest updateRequest, Authentication authentication) {
         User user = (User) authentication.getPrincipal();
         Store existingStore = storeRepository.findById(storeId)
                 .orElseThrow(() -> new EntityNotFoundException("Cannot find store with provided restaurantId: " + storeId));
@@ -229,38 +246,10 @@ public class StoreService {
         existingStore.setLogoUrl(updateRequest.getLogoUrl());
 
         Store updatedStore = storeRepository.save(existingStore);
-        StoreTransactionHistory transactionHistory = StoreTransactionHistory.builder()
-                .store(updatedStore)
-                .user(user)
-                .transactionType("UPDATE")
-                .transactionDate(LocalDateTime.now())
-                .details("RestaurantController updated")
-                .build();
-        storeTransactionHistoryRepository.save(transactionHistory);
-        return existingStore;
-    }
-    @PreAuthorize("hasRole('BUSINESS_OWNER')")
-    @Transactional
-    public void deleteStore(Integer id,  Authentication connectedUser){
-        User user = ((User) connectedUser.getPrincipal());
-        Store existedStore = storeRepository.findById(id)
-                .orElseThrow(() -> new EntityNotFoundException("Cannot find store with provided restaurantId:" + id))     ;
-        if(!existedStore.getOwner().getId().equals(user.getId())){
-            throw new AccessDeniedException("You don't have permission to update this restaurant");
-        }
-
-        StoreTransactionHistory transactionHistory = StoreTransactionHistory
-                .builder()
-                .store(existedStore)
-                .user(user)
-                .transactionType("DELETE")
-                .transactionDate(LocalDateTime.now())
-                .details("RestaurantController deleting")
-                .build();
-        storeRepository.deleteById(id);
+        return storeMapper.toStoreResponse(updatedStore);
     }
 
-    @PreAuthorize("hasRole('BUSINESS_OWNER')")
+   // @PreAuthorize("hasRole('BUSINESS_OWNER')")
    // @CachePut(value = "store_allProducts", key = "#storeId")
    @Transactional
    public ProductResponse addProductToStore(Integer storeId, ProductRequest request, Authentication authentication) {
@@ -281,8 +270,8 @@ public class StoreService {
            throw new EntityNotFoundException("Cannot create new product: "+ e.getMessage());
        }
        }
-    @PreAuthorize("hasRole('BUSINESS_OWNER')")
-    @Transactional
+  //  @PreAuthorize("hasRole('BUSINESS_OWNER')")
+  //  @Transactional
     @CachePut(value = "store_allDrinks", key = "#storeId")
     public DrinksResponse addDrinkToTheStore(Integer storeId, DrinkRequestForStore request, Authentication authentication){
         User user = ((User) authentication.getPrincipal());
@@ -303,9 +292,9 @@ public class StoreService {
             throw new EntityNotFoundException("Cannot create new drink: " + e.getMessage());
         }
     }
-    @PreAuthorize("hasRole('BUSINESS_OWNER')")
+   // @PreAuthorize("hasRole('BUSINESS_OWNER')")
     @Transactional
-    @CachePut(value = "store_drinks_update", key = "#storeId + '_' + #drinkId")
+   //@CachePut(value = "store_drinks_update", key = "#storeId + '_' + #drinkId")
     public DrinksResponse updateDrinkInStore(Integer storeId, Integer drinkId, DrinkRequest request, Authentication connectedUser) throws BadRequestException, InternalServerErrorException {
         User user = ((User) connectedUser.getPrincipal());
         Store existedStore = storeRepository.findById(storeId)
@@ -318,12 +307,10 @@ public class StoreService {
 
         Drink existedDrink = drinkRepository.findByIdAndStoreId(drinkId, storeId)
                 .orElseThrow(() -> new EntityNotFoundException("Cannot find drink in store with provided restaurantId::" + drinkId));
-
-
         try{
             updatedDrinkProperties(existedDrink, request);
             Drink updatedDrink = drinkRepository.save(existedDrink);
-            createTransactionHistory(updatedDrink, existedStore, user);
+        //    createTransactionHistory(updatedDrink, existedStore, user);
             log.warn("Drink with restaurantId {} in store {} successfully updated", drinkId, storeId);
             return drinkMapper.toDrinkResponse(updatedDrink);
         }
@@ -337,8 +324,8 @@ public class StoreService {
         }
 
     }
-    @PreAuthorize("hasRole('BUSINESS_OWNER')")
-    @CachePut(value = "store_product_update", key = "#storeId + '_' + #productId")
+    //@PreAuthorize("hasRole('BUSINESS_OWNER')")
+ //   @CachePut(value = "store_product_update", key = "#storeId + '_' + #productId")
     public ProductResponse updateProductForStore(Integer storeId, Integer productId, ProductRequest request, Authentication connectedUser) throws BadRequestException, InternalServerErrorException {
         User user = ((User) connectedUser.getPrincipal());
         Store existedStore = storeRepository.findById(storeId)
@@ -354,7 +341,6 @@ public class StoreService {
         try{
             updateProductInStore(product, request);
             Product updatedProduct = productRepository.save(product);
-            createTransactionHistoryForProduct(updatedProduct, existedStore, user);
             log.info("Product with restaurantId {} in restaurant {} successfully updated", productId, storeId);
             return productMapper.toProductResponse(updatedProduct);
         }
@@ -367,7 +353,7 @@ public class StoreService {
         }
 
     }
-    @PreAuthorize("hasRole('BUSINESS_OWNER')")
+    //@PreAuthorize("hasRole('BUSINESS_OWNER')")
     @Transactional
     //@CacheEvict(value = "store_deleteDrink", key = "#drinkId + '_' + #storeId")
     public void deleteDrinkInsideStore(Integer drinkId, Integer storeId, Authentication ConnectedUser) throws InternalServerErrorException {
@@ -392,7 +378,7 @@ public class StoreService {
             throw new InternalServerErrorException("An error occurred while updating the drink: " + e.getMessage());
         }
     }
-    @PreAuthorize("hasRole('BUSINESS_OWNER')")
+  //  @PreAuthorize("hasRole('BUSINESS_OWNER')")
     @Transactional
    // @CacheEvict(value = "store_deleteProduct", key = "#productId + '_' + #storeId")
     public void deleteProductInsideStore(Integer productId, Integer storeId, Authentication ConnectedUser) throws InternalServerErrorException {
@@ -419,6 +405,43 @@ public class StoreService {
             throw new InternalServerErrorException("An error occurred while updating the drink: " + e.getMessage());
         }
     }
+
+    @Transactional
+    // @CacheEvict(value = "restaurant_delete" , key = "#id + '_' + #connectedUser")
+    public void deleteStore(Integer id,  Authentication connectedUser){
+        User user = ((User) connectedUser.getPrincipal());
+        Store existingStore = storeRepository.findById(id)
+                .orElseThrow(() -> new EntityNotFoundException("Cannot find store with provided storeId:" + id))     ;
+        if(!existingStore.getOwner().getId().equals(user.getId())){
+            throw new AccessDeniedException("You don't have permission to delete the store");
+        }
+      /*  StoreTransactionHistory transactionHistory = StoreTransactionHistory
+                .builder()
+                .store(existingStore)
+                .user(user)
+                .createdBy(user.getId())
+                .lastModifiedBy(user.getId())
+                .lastModifiedDate(LocalDateTime.now())
+                .createdDate(LocalDateTime.now())
+                .transactionType("DELETE")
+                .transactionDate(LocalDateTime.now())
+                .details("RestaurantController deleting")
+                .build();
+        storeTransactionHistoryRepository.save(transactionHistory);
+
+       */
+        storeRepository.deleteById(id);
+    }
+
+
+
+
+
+
+
+
+
+
 
     private void deleteProductTransactionalHistory(Product product, Store store, User user) {
         ProductTransactionHistory productTransactionHistory =
@@ -496,6 +519,10 @@ public class StoreService {
         updateProductFromRequest(product, request);
         product.setStore(store);
         product.setOwner(owner);
+        product.setCreatedDate(LocalDateTime.now());
+        product.setLastModifiedBy(owner.getId());
+        product.setLastModifiedDate(LocalDateTime.now());
+        product.setCreatedBy(owner.getId());
         return product;
     }
 
@@ -512,6 +539,10 @@ public class StoreService {
         updateDrinkFromRequest(drink, request);
         drink.setStore(store);
         drink.setOwner(user);
+        drink.setCreatedDate(LocalDateTime.now());
+        drink.setLastModifiedBy(user.getId());
+        drink.setLastModifiedDate(LocalDateTime.now());
+        drink.setCreatedBy(user.getId());
         return drink;
     }
 
@@ -620,6 +651,25 @@ public class StoreService {
                 .orElseThrow(() -> new EntityNotFoundException("Cannot find store with id: " + storeId));
         store.setDeliveryAvailable(deliveryAvailable);
         return storeMapper.toStoreResponse(store);
+    }
+
+    public void uploadStoreLogo(MultipartFile file, Authentication authentication, Integer storeId){
+        Store store = storeRepository.findById(storeId)
+                .orElseThrow(() -> new EntityNotFoundException("Cannot find store with id: " + storeId));
+        User user = (User) authentication.getPrincipal();
+
+        if(!store.getOwner().getId().equals(user.getId())){
+            throw new AccessDeniedException("You don't have permission to upload logo for this store");
+        }
+        String logoPath = fileStorageService.saveStoreFile(file, store, user.getId());
+        if (logoPath == null) {
+            throw new RuntimeException("Failed to save restaurant logo");
+        }if (logoPath.startsWith("./")) {
+            logoPath = logoPath.substring(2);
+        }
+        store.setLogoUrl(logoPath);
+        storeRepository.save(store);
+
     }
 
 

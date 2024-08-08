@@ -18,4 +18,6 @@ public interface StoreRepository extends JpaRepository<Store, Integer>, JpaSpeci
     Page<Store> findAllDisplayedStoresWithoutDelivery(Pageable pageable, @Param("storeId") Integer storeId);
 
 
+    @Query("SELECT s FROM Store s WHERE s.owner.id= :ownerId")
+    Page<Store> findAllCreatedStoresByBusinessOwner(Pageable pageable, @Param("ownerId") Integer ownerId);
 }

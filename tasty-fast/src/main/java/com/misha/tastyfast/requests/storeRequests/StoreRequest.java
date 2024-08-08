@@ -30,7 +30,7 @@ public class StoreRequest {
     private String websiteUrl;
     @NotNull(message = "Owner ID is required! ")
     private Long ownerId;
-    private byte[] logoUrl;
+    private String logoUrl;
 
 
 

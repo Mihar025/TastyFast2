@@ -72,7 +72,7 @@ public class Store extends BaseEntity {
     private String websiteUrl;
 
     @Column(name = "logo_url")
-    private byte[] logoUrl;
+    private String logoUrl;
 
     @OneToMany(mappedBy = "store")
     private List<Feedback> feedbacks;
