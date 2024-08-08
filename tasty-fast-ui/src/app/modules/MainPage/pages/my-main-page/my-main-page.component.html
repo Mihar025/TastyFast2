@@ -1,8 +1,9 @@
 <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600&display=swap" rel="stylesheet">
 <div class="container">
-  <h2 class="mb-4">Welcome to TastyFast</h2>
+  <h2 class="mb-4 text-center">Welcome to TastyFast</h2>
+
   <div *ngIf="specialOffer" class="mb-4">
-    <h3>Special Offer</h3>
+    <h3 class="text-center">Special Offer</h3>
     <div class="card special-offer" (click)="goToRestaurantDetails(specialOffer)">
       <div class="card-body">
         <h4 class="card-title">{{ specialOffer.restaurantName }}</h4>
@@ -13,29 +14,27 @@
   </div>
 
   <div class="row">
-    <div class="col-md-6">
-      <h3>Featured Restaurants</h3>
-      <div class="restaurant-list">
-        <div *ngFor="let restaurant of restaurants" class="mb-3">
-          <div class="card h-100" (click)="goToRestaurantDetails(restaurant)" style="cursor: pointer;">
-            <div class="card-body">
-              <h5 class="card-title">{{ restaurant.restaurantName }}</h5>
-              <p class="card-text">{{ restaurant.description }}</p>
-            </div>
+    <div class="col-md-6 mb-4">
+      <h3 class="text-center">Featured Restaurants</h3>
+      <div class="card-grid">
+        <div *ngFor="let restaurant of restaurants" class="card" (click)="goToRestaurantDetails(restaurant)">
+          <img [src]="getRestaurantImage(restaurant)" class="card-img-top" alt="{{ restaurant.restaurantName }}">
+          <div class="card-body">
+            <h5 class="card-title">{{ restaurant.restaurantName }}</h5>
+            <p class="card-text">{{ restaurant.description }}</p>
           </div>
         </div>
       </div>
     </div>
 
-    <div class="col-md-6">
-      <h3>Featured Stores</h3>
-      <div class="store-list">
-        <div *ngFor="let store of stores" class="mb-3">
-          <div class="card h-100" (click)="goToStoreDetails(store)" style="cursor: pointer;">
-            <div class="card-body">
-              <h5 class="card-title">{{ store.storeName }}</h5>
-              <p class="card-text">{{ store.description }}</p>
-            </div>
+    <div class="col-md-6 mb-4">
+      <h3 class="text-center">Featured Stores</h3>
+      <div class="card-grid">
+        <div *ngFor="let store of stores" class="card" (click)="goToStoreDetails(store)">
+          <img [src]="getStoreImage(store)" class="card-img-top" alt="{{ store.storeName }}">
+          <div class="card-body">
+            <h5 class="card-title">{{ store.storeName }}</h5>
+            <p class="card-text">{{ store.description }}</p>
           </div>
         </div>
       </div>
