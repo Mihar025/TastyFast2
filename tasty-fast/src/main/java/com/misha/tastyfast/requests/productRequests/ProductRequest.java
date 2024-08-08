@@ -20,7 +20,9 @@ public record ProductRequest (
         @NotEmpty(message = "103")
         BigDecimal calories,
          boolean inStock,
-        Integer quantity
+        Integer quantity,
+         String logo
+
 
 ) {
 }
