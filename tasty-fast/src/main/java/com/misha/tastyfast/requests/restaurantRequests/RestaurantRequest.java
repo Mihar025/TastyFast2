@@ -6,6 +6,7 @@ import lombok.Data;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
+import org.springframework.web.multipart.MultipartFile;
 
 @Getter
 @Setter
@@ -32,7 +33,7 @@ public class RestaurantRequest {
     private String websiteUrl;
     @NotNull(message = "Owner ID is required! ")
     private Integer ownerId;
-    private byte[] logoUrl;
+    private String logo;
     private String cuisineType;
 
 }
