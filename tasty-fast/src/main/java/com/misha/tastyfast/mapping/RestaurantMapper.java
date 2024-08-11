@@ -143,7 +143,6 @@ public class RestaurantMapper {
                 .build()).collect(Collectors.toList());
     }
 
-
     public RestaurantResponse toPublicRestaurantResponse(Restaurant restaurant) {
         RestaurantResponse response = RestaurantResponse.builder()
                 .restaurantId(restaurant.getId())
