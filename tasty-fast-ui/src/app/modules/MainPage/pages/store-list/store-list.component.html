@@ -2,7 +2,6 @@
 <div class="container">
   <h2>Stores</h2>
 
-  <!-- Сообщение об ошибке или успехе -->
   <div *ngIf="message" [ngClass]="{'alert-success': level === 'success', 'alert-danger': level === 'error'}" class="alert" role="alert">
     {{ message }}
   </div>
@@ -22,7 +21,7 @@
     </div>
   </div>
 
-  <!-- Пагинация -->
+
   <nav *ngIf="pages.length > 1" aria-label="Restaurant pagination">
     <ul class="pagination justify-content-center">
       <li class="page-item" [class.disabled]="page === 0">
