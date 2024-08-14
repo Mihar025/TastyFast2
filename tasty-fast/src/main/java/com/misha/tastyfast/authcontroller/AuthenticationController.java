@@ -1,6 +1,5 @@
 package com.misha.tastyfast.authcontroller;
 
-import com.misha.tastyfast.model.User;
 import com.misha.tastyfast.requests.registrationRequests.RegistrationBusinessAccountRequest;
 import com.misha.tastyfast.requests.registrationRequests.RegistrationRequest;
 import com.misha.tastyfast.security.AuthenticationRequest;
