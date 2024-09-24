@@ -65,8 +65,6 @@ public class AuthenticationService {
         }
             return true;
     }
-
-
     public boolean checkStoreOwnership(Integer ownerId, Integer storeId, Authentication connectedUser) throws AccessDeniedException {
         User user = ((User) connectedUser.getPrincipal());
 
@@ -93,6 +91,9 @@ public class AuthenticationService {
     }
 
 
+
+
+
     public void register(RegistrationRequest request, UserRoles userRoles ) throws MessagingException {
         if(userRepository.findByEmail(request.getEmail()).isPresent()){
             throw new EmailorPasswordAlreadyExistException("User with email: " +  request.getEmail() + " already exist");
@@ -116,6 +117,7 @@ public class AuthenticationService {
     }
 
 
+
     public void registerBusiness(RegistrationBusinessAccountRequest request, UserRoles userRoles ) throws MessagingException {
         if(userRepository.findByEmail(request.getEmail()).isPresent()){
             throw new EmailorPasswordAlreadyExistException("User with email: " +  request.getEmail() + " already exist");
@@ -136,7 +138,6 @@ public class AuthenticationService {
 
             userRepository.save(user);
             sendValidationEmail(user);
-
     }
 
 
@@ -171,7 +172,6 @@ public class AuthenticationService {
         StringBuilder codeBuilder = new StringBuilder();
 
         SecureRandom secureRandom = new SecureRandom();
-
         for (int i = 0; i < length; i++) {
             int randomIndex = secureRandom.nextInt(characters.length());
             codeBuilder.append(characters.charAt(randomIndex));
@@ -214,30 +214,6 @@ public class AuthenticationService {
         tokenRepository.save(token);
     }
 
-    public AuthenticationResponse authenticateBusinessAccount(AuthenticationRequest authenticationRequest){
-        try {
-            var auth = authenticationManager.authenticate(
-                    new UsernamePasswordAuthenticationToken(
-                            authenticationRequest.getEmail(),
-                            authenticationRequest.getPassword()
-                    )
-
-            );
-            var claims = new HashMap<String, Object>();
-            var user = ((User) auth.getPrincipal());
-            claims.put("fullName", user.getFullName());
-
-            var jwtToken = jwtService.generateToken(claims, user);
-
-            return AuthenticationResponse.builder()
-                    .token(jwtToken).build();
-        } catch (BadCredentialsException e){
-            throw new EmailorPasswordAlreadyExistException("Invalid email or password");
-        } catch (DisabledException e){
-            throw new AccountDissabledException("Account is disabled");
-        }
-
-    }
 
     // @Transactional
     public void activateAccount(String token) throws MessagingException {
