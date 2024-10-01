@@ -3,7 +3,7 @@ name: Build & Deploy TastyFast application
 on:
   push:
     branches:
-      - main
+      - brench1
 
 
 jobs:
