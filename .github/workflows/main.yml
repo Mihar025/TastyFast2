@@ -3,13 +3,28 @@ name: Build & Deploy TastyFast application
 on:
   push:
     branches:
-      - main
-
+      - brench1
 
 jobs:
   build-deploy:
     name: Build and Deploy TastyFast application
     runs-on: ubuntu-latest
+
+    services:
+      postgres:
+        image: postgres
+        env:
+          POSTGRES_USER: misha
+          POSTGRES_PASSWORD: misha
+          POSTGRES_DB: tasty_fast
+        ports:
+          - 5433:5432
+        options: >-
+          --health-cmd pg_isready
+          --health-interval 10s
+          --health-timeout 5s
+          --health-retries 5
+
     steps:
       - name: Checkout code
         uses: actions/checkout@v3
@@ -21,9 +36,16 @@ jobs:
           java-version: 17
 
       - name: Unit Tests
-        run: mvn -B test --file pom.xml
+        run: mvn -B test --file tasty-fast/pom.xml
+        env:
+          SPRING_DATASOURCE_URL: jdbc:postgresql://localhost:5433/tasty_fast
+          SPRING_DATASOURCE_USERNAME: misha
+          SPRING_DATASOURCE_PASSWORD: misha
 
       - name: Build the application
         run: |
-          mvn clean 
-          mvn -B package --file pom.xml
+          mvn clean package --file tasty-fast/pom.xml
+        env:
+          SPRING_DATASOURCE_URL: jdbc:postgresql://localhost:5433/tasty_fast
+          SPRING_DATASOURCE_USERNAME: misha
+          SPRING_DATASOURCE_PASSWORD: misha
