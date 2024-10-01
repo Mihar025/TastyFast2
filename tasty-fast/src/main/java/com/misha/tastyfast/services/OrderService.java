@@ -142,7 +142,6 @@ public class OrderService {
         List<OrderResponse> orderResponses = orders.getContent().stream()
                 .map(orderMapper::mapToOrderResponse)
                 .collect(Collectors.toList());
-
         return new PageResponse<>(
                 orderResponses,
                 orders.getNumber(),
@@ -158,7 +157,6 @@ public class OrderService {
     public OrderDetailsResponse getOrderDetails(Integer orderId){
         Order order = orderRepository.findById(orderId)
                 .orElseThrow(() -> new RuntimeException("Cannot find order with provided id! "+ orderId));
-
         OrderDetailsResponse orderDetailsResponse = new OrderDetailsResponse();
         orderDetailsResponse.setOrderId(order.getId());
         orderDetailsResponse.setOrderDate(order.getOrderDate());
@@ -166,12 +164,9 @@ public class OrderService {
         orderDetailsResponse.setTotalAmount(order.getTotalAmount());
         orderDetailsResponse.setTotalQuantity(order.getQuantity());
         orderDetailsResponse.setOrderType(order.getRestaurant() != null ? "RESTAURANT" : "STORE");
-
         List<OrderItemResponse> items = order.getOrderItems().stream().map(orderMapper::mapToOrderItemResponse).collect(Collectors.toList());
         orderDetailsResponse.setItems(items);
         return orderDetailsResponse;
-
-
     }
 
     @Transactional
@@ -249,36 +244,6 @@ public class OrderService {
         Order savedOrder = orderRepository.save(order);
         log.info("Order saved successfully with ID: {}", savedOrder.getId());
         return orderMapper.mapToOrderResponse(savedOrder);
-    }
-
-    private OrderItem createOrderItemFromCartItem(CartItemRequest itemRequest, Order order, Authentication authentication) {
-        OrderItem orderItem = new OrderItem();
-        orderItem.setOrder(order);
-        orderItem.setQuantity(itemRequest.getQuantity());
-        orderItem.setItemType(itemRequest.getItemType());
-        orderItem.setId(itemRequest.getItemId());
-
-        switch (itemRequest.getItemType()) {
-            case "PRODUCT":
-                ProductResponse product = productService.findProductById(itemRequest.getItemId(), authentication);
-                orderItem.setItemName(product.getProductName());
-                orderItem.setPrice(product.getPrice());
-                break;
-            case "DISH":
-                DishesResponse dish = dishesService.findDishesById(itemRequest.getItemId(), authentication);
-                orderItem.setItemName(dish.getDishesName());
-                orderItem.setPrice(dish.getPrice());
-                break;
-            case "DRINK":
-                DrinksResponse drink = drinkService.findDrinkById(itemRequest.getItemId(), authentication);
-                orderItem.setItemName(drink.getDrinkName());
-                orderItem.setPrice(drink.getPrice());
-                break;
-            default:
-                throw new IllegalArgumentException("Invalid item type: " + itemRequest.getItemType());
-        }
-
-        return orderItem;
     }
 
     @Transactional

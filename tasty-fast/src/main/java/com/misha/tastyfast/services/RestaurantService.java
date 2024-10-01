@@ -77,7 +77,6 @@ private final FileStorageService fileStorageService;
         boolean isOwner = restaurant.getOwner().getId().equals(user.getId());
         boolean isBusinessOwner = user.getRoles().stream()
                 .anyMatch(role -> role.getName().equals("BUSINESS_OWNER"));
-
         log.info("Is owner: {}, Is business owner: {}", isOwner, isBusinessOwner);
 
         if(isOwner || isBusinessOwner){
@@ -89,7 +88,6 @@ private final FileStorageService fileStorageService;
     //  @Cacheable(value = "restaurant_allDish", key = "#restaurantId") //updated
     public PageResponse<DishesResponse> findAllDishesInRestaurant(int page, int size, Integer restaurantId) {
         log.info("Fetching dishes for restaurant with ID: {}", restaurantId);
-
         Pageable pageable = PageRequest.of(page, size, Sort.by("createdDate").descending());
         Page<Dishes> dishes = dishesRepository.findAllDishesInRestaurant(pageable, restaurantId);
 

@@ -16,7 +16,7 @@ public interface ProductRepository extends JpaRepository<Product, Integer> , Jpa
     @Query("""
         SELECT product
         FROM Product  product
-        WHERE product.inStock = true 
+        WHERE product.inStock = true
 """)
     Page<Product> findAllDisplayableProducts(Pageable pageable, Integer id);
     @Query("SELECT p FROM Product p WHERE p.store.id = :storeId")
