@@ -19,7 +19,6 @@ import {HttpTokenInterceptor} from "./services/interceptor/http-token.intercepto
 import {RestaurantDetailsComponent} from "./modules/MainPage/pages/restaurant-details/restaurant-details.component";
 import {StoresDetailsComponent} from "./modules/MainPage/pages/stores-details/stores-details.component";
 import {JWT_OPTIONS, JwtHelperService} from "@auth0/angular-jwt";
-import {WatchProfileComponent} from "./modules/MainPage/pages/watch-profile/watch-profile.component";
 
 @NgModule({
   declarations: [
